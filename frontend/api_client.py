@@ -60,3 +60,7 @@ def get_country_anomalies(country_id):
 
 def get_country_momentum(country_id):
     return _get(f"/countries/{country_id}/momentum")
+
+
+def get_country_business_cycle(country_id):
+    return _get(f"/countries/{country_id}/business_cycle")

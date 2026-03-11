@@ -1,0 +1,68 @@
+us:
+  leading:
+    - UMCSENT        # Consumer Sentiment
+    - PERMIT         # Building Permits
+    - ICSA           # Initial Jobless Claims (inverted)
+    - DGORDER        # Durable Goods Orders
+    - M2SL           # M2 Money Supply
+    - BAA10Y         # BAA Spread (inverted)
+    - HOUST          # Housing Starts
+  coincident:
+    - INDPRO         # Industrial Production
+    - PAYEMS         # Nonfarm Payrolls
+    - RSAFS          # Retail Sales
+    - PCE            # Personal Consumption
+  lagging:
+    - UNRATE         # Unemployment Rate
+    - CES0500000003  # Average Hourly Earnings
+    - CPIAUCSL       # CPI
+    - TOTALSL        # Consumer Credit
+    - FEDFUNDS       # Fed Funds Rate
+  inverted:          # Higher = worse
+    - UNRATE
+    - ICSA
+    - BAA10Y
+  sector_cycle_map:
+    expansion:
+      - Consumer
+      - Financial
+      - Energy
+    peak:
+      - Energy
+      - Inflation
+    contraction:
+      - Financial
+      - Trade
+    trough:
+      - Housing
+      - Manufacturing
+
+ca:
+  leading:
+    - CSCICP03CAM665S   # Consumer Confidence
+    - CANHOUST          # Housing Starts
+    - LRUNTTTTCAM156S   # Unemployment Rate (inverted)
+  coincident:
+    - CANRGDPMANQISMEI  # Manufacturing Sales
+    - LFEMTTTTCAM647S   # Employment Level
+    - CARSLM            # Retail Sales
+  lagging:
+    - LRUNTTTTCAM156S   # Unemployment Rate
+    - CPALCY01CAM661N   # CPI
+    - V39079            # BoC Overnight Rate
+  inverted:
+    - LRUNTTTTCAM156S
+  sector_cycle_map:
+    expansion:
+      - Consumer
+      - Financial
+      - Energy
+    peak:
+      - Energy
+      - Inflation
+    contraction:
+      - Financial
+      - Trade
+    trough:
+      - Housing
+      - Manufacturing

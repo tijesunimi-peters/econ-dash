@@ -10,6 +10,7 @@ Rails.application.routes.draw do
           get :percentiles
           get :anomalies
           get :momentum
+          get :business_cycle
         end
       end
       resources :sectors, only: [:show] do

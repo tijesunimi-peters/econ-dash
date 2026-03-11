@@ -45,6 +45,14 @@ module Api
         render json: data
       end
 
+      def business_cycle
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_business_cycle/#{country.id}", expires_in: 1.hour) do
+          BusinessCycleService.new(country).call
+        end
+        render json: data
+      end
+
       private
 
       def country_json(country)
