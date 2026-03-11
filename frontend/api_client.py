@@ -48,3 +48,11 @@ def get_indicator_series(indicator_id, start_date=None, end_date=None):
 
 def get_indicator_acceleration(indicator_id):
     return _get(f"/indicators/{indicator_id}/acceleration")
+
+
+def get_country_percentiles(country_id):
+    return _get(f"/countries/{country_id}/percentiles")
+
+
+def get_country_anomalies(country_id):
+    return _get(f"/countries/{country_id}/anomalies")

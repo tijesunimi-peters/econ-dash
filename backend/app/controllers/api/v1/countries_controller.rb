@@ -21,6 +21,22 @@ module Api
         render json: { country: country_json(country), sectors: data }
       end
 
+      def percentiles
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_percentiles/#{country.id}", expires_in: 1.hour) do
+          PercentileService.new(country).call
+        end
+        render json: data
+      end
+
+      def anomalies
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_anomalies/#{country.id}", expires_in: 1.hour) do
+          AnomalyDetectionService.new(country).call
+        end
+        render json: data
+      end
+
       private
 
       def country_json(country)

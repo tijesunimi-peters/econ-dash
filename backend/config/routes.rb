@@ -5,7 +5,11 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :countries, only: [:index, :show] do
         resources :sectors, only: [:index], shallow: true
-        get :summary, on: :member
+        member do
+          get :summary
+          get :percentiles
+          get :anomalies
+        end
       end
       resources :sectors, only: [:show] do
         resources :sub_industries, only: [:index], shallow: true
