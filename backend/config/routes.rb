@@ -9,6 +9,7 @@ Rails.application.routes.draw do
           get :summary
           get :percentiles
           get :anomalies
+          get :momentum
         end
       end
       resources :sectors, only: [:show] do

@@ -37,6 +37,14 @@ module Api
         render json: data
       end
 
+      def momentum
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_momentum/#{country.id}", expires_in: 1.hour) do
+          MomentumScoreboardService.new(country).call
+        end
+        render json: data
+      end
+
       private
 
       def country_json(country)

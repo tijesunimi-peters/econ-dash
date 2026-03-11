@@ -56,3 +56,7 @@ def get_country_percentiles(country_id):
 
 def get_country_anomalies(country_id):
     return _get(f"/countries/{country_id}/anomalies")
+
+
+def get_country_momentum(country_id):
+    return _get(f"/countries/{country_id}/momentum")
