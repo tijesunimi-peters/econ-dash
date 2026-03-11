@@ -1,15 +1,12 @@
 namespace :data do
   desc "Export current database data to db/seed_data.sql"
   task dump: :environment do
-    db = ActiveRecord::Base.connection_db_config.configuration_hash
-    host = db[:host] || "localhost"
-    port = db[:port] || 5432
-    database = db[:database]
-    username = db[:username] || "econ"
+    config = ActiveRecord::Base.connection_db_config.configuration_hash
+    env = pg_env(config)
 
-    cmd = "pg_dump -U #{username} -h #{host} -p #{port} --data-only --inserts #{database} > db/seed_data.sql"
+    cmd = "pg_dump --data-only --inserts #{config[:database]} > db/seed_data.sql"
     puts "Running: #{cmd}"
-    system(cmd)
+    system(env, cmd)
     puts "Exported to db/seed_data.sql"
   end
 
@@ -21,15 +18,21 @@ namespace :data do
       exit 1
     end
 
-    db = ActiveRecord::Base.connection_db_config.configuration_hash
-    host = db[:host] || "localhost"
-    port = db[:port] || 5432
-    database = db[:database]
-    username = db[:username] || "econ"
+    config = ActiveRecord::Base.connection_db_config.configuration_hash
+    env = pg_env(config)
 
-    cmd = "psql -U #{username} -h #{host} -p #{port} -d #{database} -f db/seed_data.sql"
+    cmd = "psql -d #{config[:database]} -f db/seed_data.sql"
     puts "Running: #{cmd}"
-    system(cmd)
+    system(env, cmd)
     puts "Loaded data from db/seed_data.sql"
+  end
+
+  def pg_env(config)
+    env = {}
+    env["PGHOST"] = config[:host] if config[:host]
+    env["PGPORT"] = config[:port].to_s if config[:port]
+    env["PGUSER"] = config[:username] if config[:username]
+    env["PGPASSWORD"] = config[:password] if config[:password]
+    env
   end
 end
