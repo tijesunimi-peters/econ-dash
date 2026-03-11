@@ -66,3 +66,93 @@ ca:
     trough:
       - Housing
       - Manufacturing
+
+jp:
+  leading:
+    - CSCICP03JPM665S   # Consumer Confidence
+    - JPNSLRTTO02IXOBM  # Retail Sales
+    - LRUNTTTTJPM156S   # Unemployment Rate (inverted)
+  coincident:
+    - JPNPROINDMISMEI   # Industrial Production
+    - LFEMTTTTJPM647S   # Employment Level
+    - XTEXVA01JPM667S   # Exports
+  lagging:
+    - LRUNTTTTJPM156S   # Unemployment Rate
+    - JPNCPIALLMINMEI   # CPI
+    - IRSTCI01JPM156N   # Call Rate
+  inverted:
+    - LRUNTTTTJPM156S
+  sector_cycle_map:
+    expansion:
+      - Consumer
+      - Financial
+      - Energy
+    peak:
+      - Energy
+      - Inflation
+    contraction:
+      - Financial
+      - Trade
+    trough:
+      - Housing
+      - Manufacturing
+
+au:
+  leading:
+    - CSCICP03AUM665S   # Consumer Confidence
+    - SLRTTO01AUQ659S   # Retail Sales
+    - LRUNTTTTAUM156S   # Unemployment Rate (inverted)
+  coincident:
+    - AUSPROINDQISMEI   # Industrial Production
+    - LFEMTTTTAUM647S   # Employment Level
+    - XTEXVA01AUM667S   # Exports
+  lagging:
+    - LRUNTTTTAUM156S   # Unemployment Rate
+    - AUSCPIALLQINMEI   # CPI
+    - IRSTCI01AUM156N   # Cash Rate
+  inverted:
+    - LRUNTTTTAUM156S
+  sector_cycle_map:
+    expansion:
+      - Consumer
+      - Financial
+      - Energy
+    peak:
+      - Energy
+      - Inflation
+    contraction:
+      - Financial
+      - Trade
+    trough:
+      - Housing
+      - Manufacturing
+
+de:
+  leading:
+    - CSCICP03DEM665S   # Consumer Confidence
+    - DEUSLRTTO02IXOBM  # Retail Sales
+    - LRHUTTTTDEM156S   # Unemployment Rate (inverted)
+  coincident:
+    - DEUPROINDMISMEI   # Industrial Production
+    - LFEMTTTTDEQ647S   # Employment Level
+    - XTEXVA01DEM667S   # Exports
+  lagging:
+    - LRHUTTTTDEM156S   # Unemployment Rate
+    - DEUCPIALLMINMEI   # CPI
+    - IR3TIB01DEM156N   # 3-Month Interbank Rate
+  inverted:
+    - LRHUTTTTDEM156S
+  sector_cycle_map:
+    expansion:
+      - Consumer
+      - Financial
+      - Energy
+    peak:
+      - Energy
+      - Inflation
+    contraction:
+      - Financial
+      - Trade
+    trough:
+      - Housing
+      - Manufacturing

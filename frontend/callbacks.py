@@ -262,19 +262,36 @@ def register_callbacks(app):
             if isinstance(countries, dict) and "error" in countries:
                 return dbc.Alert("Failed to load countries", color="warning")
 
-            other_id = None
-            for c in countries:
-                if c["id"] != country_id:
-                    other_id = c["id"]
-                    break
-            if not other_id:
+            other_options = [
+                {"label": c["name"], "value": c["id"]}
+                for c in countries if c["id"] != country_id
+            ]
+            if not other_options:
                 return html.P("No other country available for comparison",
                               style={"color": COLORS["text_muted"]})
 
-            compare_data = api_client.get_country_compare(country_id, other_id)
-            if isinstance(compare_data, dict) and "error" in compare_data:
-                return dbc.Alert("Failed to load comparison data", color="warning")
-            return build_cross_country_comparison(compare_data)
+            default_other = other_options[0]["value"]
+
+            compare_data = api_client.get_country_compare(country_id, default_other)
+            initial_content = html.Div()
+            if not (isinstance(compare_data, dict) and "error" in compare_data):
+                initial_content = build_cross_country_comparison(compare_data)
+
+            return html.Div([
+                dbc.Row([
+                    dbc.Col([
+                        html.Label("Compare with:", className="text-muted me-2"),
+                        dcc.Dropdown(
+                            id="compare-country-dropdown",
+                            options=other_options,
+                            value=default_other,
+                            clearable=False,
+                            className="header-dropdown",
+                        ),
+                    ], width=4),
+                ], className="mb-3"),
+                html.Div(id="compare-content", children=initial_content),
+            ])
 
         elif active_tab == "tab-correlations":
             corr_data = api_client.get_country_correlations(country_id)
@@ -283,6 +300,23 @@ def register_callbacks(app):
             return build_correlation_heatmap(corr_data)
 
         return html.Div()
+
+    # ── Compare country selection ──
+    @app.callback(
+        Output("compare-content", "children"),
+        Input("compare-country-dropdown", "value"),
+        State("nav-state", "data"),
+        prevent_initial_call=True,
+    )
+    def on_compare_country_select(other_id, nav):
+        country_id = nav.get("country_id")
+        if not country_id or not other_id:
+            return html.Div()
+
+        compare_data = api_client.get_country_compare(country_id, other_id)
+        if isinstance(compare_data, dict) and "error" in compare_data:
+            return dbc.Alert("Failed to load comparison data", color="warning")
+        return build_cross_country_comparison(compare_data)
 
     # ── Master render (main content + breadcrumb) ──
     @app.callback(

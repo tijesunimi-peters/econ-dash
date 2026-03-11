@@ -11,7 +11,7 @@ def build_layout():
             dbc.Row([
                 dbc.Col([
                     html.H1("Economic Health Dashboard", className="mt-3 mb-0"),
-                    html.P("US & Canada — Sector Trends and Drill-Down"),
+                    html.P("Global Economic Sector Trends and Drill-Down"),
                 ], width=True),
                 dbc.Col(
                     dcc.Dropdown(
@@ -59,7 +59,7 @@ def build_layout():
                 [
                     dbc.Tab(label="Sectors", tab_id="tab-sectors"),
                     dbc.Tab(label="Momentum", tab_id="tab-momentum"),
-                    dbc.Tab(label="US vs Canada", tab_id="tab-compare"),
+                    dbc.Tab(label="Compare", tab_id="tab-compare"),
                     dbc.Tab(label="Correlations", tab_id="tab-correlations"),
                 ],
                 id="drill-tabs",

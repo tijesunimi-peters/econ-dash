@@ -395,8 +395,8 @@ def build_intelligence_panel(cycle_data, summary_data):
 
     return html.Div([
         dbc.Row([
-            dbc.Col(left, width=4, className="d-flex align-items-center justify-content-center"),
-            dbc.Col(right_children, width=8),
+            dbc.Col(left, width=6),
+            dbc.Col(right_children, width=6),
         ]),
     ], className="intelligence-panel")
 
@@ -435,8 +435,8 @@ def _build_cycle_clock_compact(cycle_data):
     fig.add_trace(go.Scatterpolar(
         r=[0.55], theta=[current_angle],
         mode="markers",
-        marker=dict(size=16, color=phase_color,
-                    line=dict(width=2, color=COLORS["text"]), symbol="circle"),
+        marker=dict(size=26, color=phase_color,
+                    line=dict(width=3, color=COLORS["text"]), symbol="circle"),
         showlegend=False,
         hovertemplate=f"<b>{current_phase.title()}</b><br>{duration} months<extra></extra>",
     ))
@@ -461,18 +461,19 @@ def _build_cycle_clock_compact(cycle_data):
     fig.update_layout(
         polar=dict(
             bgcolor="rgba(0,0,0,0)",
+            domain=dict(x=[0.05, 0.95], y=[0.05, 0.92]),
             radialaxis=dict(visible=False, range=[0, 1]),
             angularaxis=dict(
                 tickmode="array",
                 tickvals=[45, 135, 225, 315],
                 ticktext=["Expansion", "Peak", "Contraction", "Trough"],
-                tickfont=dict(size=10, color=COLORS["text_secondary"]),
+                tickfont=dict(size=14, color=COLORS["text_secondary"]),
                 gridcolor=COLORS["border"],
                 linecolor=COLORS["border"],
             ),
         ),
-        height=220,
-        margin=dict(l=30, r=30, t=20, b=20),
+        height=420,
+        margin=dict(l=20, r=20, t=20, b=20),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         showlegend=False,
@@ -480,16 +481,16 @@ def _build_cycle_clock_compact(cycle_data):
 
     return html.Div([
         dcc.Graph(figure=fig, config={"displayModeBar": False},
-                  style={"height": "220px"}),
+                  style={"height": "420px", "width": "100%"}),
         html.Div([
             html.Span(current_phase.title(),
-                      style={"color": phase_color, "fontSize": "1.1rem",
+                      style={"color": phase_color, "fontSize": "1.5rem",
                              "fontWeight": "700"}),
             html.Span(f" \u00b7 {duration}mo",
-                      style={"color": COLORS["text_secondary"], "fontSize": "0.8rem",
-                             "marginLeft": "6px"}),
-        ], style={"textAlign": "center", "marginTop": "-8px"}),
-    ])
+                      style={"color": COLORS["text_secondary"], "fontSize": "1rem",
+                             "marginLeft": "8px"}),
+        ], style={"textAlign": "center", "marginTop": "-12px"}),
+    ], style={"width": "100%"})
 
 
 def _build_leading_compact(leading_indicators):

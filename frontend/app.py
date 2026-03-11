@@ -8,7 +8,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.DARKLY],
     suppress_callback_exceptions=True,
 )
-app.title = "Economic Dashboard — US & Canada"
+app.title = "Economic Dashboard"
 app.layout = build_layout()
 register_callbacks(app)
 

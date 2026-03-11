@@ -245,4 +245,296 @@ ca_sectors.each do |sector_name, sector_data|
   end
 end
 
+jp = Country.find_or_create_by!(code: "JP") { |c| c.name = "Japan" }
+au = Country.find_or_create_by!(code: "AU") { |c| c.name = "Australia" }
+de = Country.find_or_create_by!(code: "DE") { |c| c.name = "Germany" }
+
+# --- Japan Sectors ---
+
+jp_sectors = {
+  "Manufacturing" => {
+    description: "Japanese goods production",
+    sub_industries: {
+      "Overall" => [
+        { name: "Industrial Production Index", source: "FRED", source_series_id: "JPNPROINDMISMEI", unit: "Index", frequency: "monthly" },
+      ],
+    },
+  },
+  "Labour" => {
+    description: "Japanese employment and workforce",
+    sub_industries: {
+      "Employment" => [
+        { name: "Unemployment Rate", source: "FRED", source_series_id: "LRUNTTTTJPM156S", unit: "Percent", frequency: "monthly" },
+        { name: "Employment Level", source: "FRED", source_series_id: "LFEMTTTTJPM647S", unit: "Persons", frequency: "monthly" },
+      ],
+    },
+  },
+  "Housing" => {
+    description: "Japanese residential real estate",
+    sub_industries: {
+      "Prices" => [
+        { name: "Residential Property Prices", source: "FRED", source_series_id: "QJPN368BIS", unit: "Index 2010=100", frequency: "quarterly" },
+      ],
+    },
+  },
+  "Consumer" => {
+    description: "Japanese consumer activity",
+    sub_industries: {
+      "Spending" => [
+        { name: "Retail Sales", source: "FRED", source_series_id: "JPNSLRTTO02IXOBM", unit: "Index", frequency: "monthly" },
+      ],
+      "Confidence" => [
+        { name: "Consumer Confidence", source: "FRED", source_series_id: "CSCICP03JPM665S", unit: "Index", frequency: "monthly" },
+      ],
+    },
+  },
+  "Financial" => {
+    description: "Japanese banking and interest rates",
+    sub_industries: {
+      "Interest Rates" => [
+        { name: "Call Rate", source: "FRED", source_series_id: "IRSTCI01JPM156N", unit: "Percent", frequency: "monthly" },
+        { name: "10-Year Bond Yield", source: "FRED", source_series_id: "IRLTLT01JPM156N", unit: "Percent", frequency: "monthly" },
+      ],
+    },
+  },
+  "Inflation" => {
+    description: "Japanese price levels",
+    sub_industries: {
+      "Consumer Prices" => [
+        { name: "CPI All Items", source: "FRED", source_series_id: "JPNCPIALLMINMEI", unit: "Index", frequency: "monthly" },
+        { name: "Core CPI", source: "FRED", source_series_id: "JPNCPICORMINMEI", unit: "Index", frequency: "monthly" },
+      ],
+    },
+  },
+  "Trade" => {
+    description: "Japanese international trade",
+    sub_industries: {
+      "Trade Balance" => [
+        { name: "Exports", source: "FRED", source_series_id: "XTEXVA01JPM667S", unit: "USD", frequency: "monthly" },
+        { name: "Imports", source: "FRED", source_series_id: "XTIMVA01JPM667S", unit: "USD", frequency: "monthly" },
+      ],
+    },
+  },
+  "Energy" => {
+    description: "Japanese energy sector",
+    sub_industries: {
+      "GDP" => [
+        { name: "GDP (energy proxy)", source: "FRED", source_series_id: "NAEXKP01JPQ189S", unit: "Index", frequency: "quarterly" },
+      ],
+    },
+  },
+}
+
+jp_sectors.each do |sector_name, sector_data|
+  sector = Sector.find_or_create_by!(name: sector_name, country: jp) do |s|
+    s.description = sector_data[:description]
+  end
+
+  sector_data[:sub_industries].each do |si_name, indicators|
+    sub_industry = SubIndustry.find_or_create_by!(name: si_name, sector: sector)
+
+    indicators.each do |ind|
+      Indicator.find_or_create_by!(source_series_id: ind[:source_series_id]) do |i|
+        i.name = ind[:name]
+        i.sub_industry = sub_industry
+        i.source = ind[:source]
+        i.unit = ind[:unit]
+        i.frequency = ind[:frequency]
+      end
+    end
+  end
+end
+
+# --- Australia Sectors ---
+
+au_sectors = {
+  "Manufacturing" => {
+    description: "Australian goods production",
+    sub_industries: {
+      "Overall" => [
+        { name: "Industrial Production Index", source: "FRED", source_series_id: "AUSPROINDQISMEI", unit: "Index", frequency: "quarterly" },
+      ],
+    },
+  },
+  "Labour" => {
+    description: "Australian employment and workforce",
+    sub_industries: {
+      "Employment" => [
+        { name: "Unemployment Rate", source: "FRED", source_series_id: "LRUNTTTTAUM156S", unit: "Percent", frequency: "monthly" },
+        { name: "Employment Level", source: "FRED", source_series_id: "LFEMTTTTAUM647S", unit: "Persons", frequency: "monthly" },
+      ],
+    },
+  },
+  "Housing" => {
+    description: "Australian residential real estate",
+    sub_industries: {
+      "Prices" => [
+        { name: "Residential Property Prices", source: "FRED", source_series_id: "QAUR628BIS", unit: "Index 2010=100", frequency: "quarterly" },
+      ],
+    },
+  },
+  "Consumer" => {
+    description: "Australian consumer activity",
+    sub_industries: {
+      "Spending" => [
+        { name: "Retail Sales", source: "FRED", source_series_id: "SLRTTO01AUQ659S", unit: "Percent Change", frequency: "quarterly" },
+      ],
+      "Confidence" => [
+        { name: "Consumer Confidence", source: "FRED", source_series_id: "CSCICP03AUM665S", unit: "Index", frequency: "monthly" },
+      ],
+    },
+  },
+  "Financial" => {
+    description: "Australian banking and interest rates",
+    sub_industries: {
+      "Interest Rates" => [
+        { name: "Cash Rate", source: "FRED", source_series_id: "IRSTCI01AUM156N", unit: "Percent", frequency: "monthly" },
+        { name: "10-Year Bond Yield", source: "FRED", source_series_id: "IRLTLT01AUM156N", unit: "Percent", frequency: "monthly" },
+      ],
+    },
+  },
+  "Inflation" => {
+    description: "Australian price levels",
+    sub_industries: {
+      "Consumer Prices" => [
+        { name: "CPI All Items", source: "FRED", source_series_id: "AUSCPIALLQINMEI", unit: "Index", frequency: "quarterly" },
+        { name: "Core CPI", source: "FRED", source_series_id: "AUSCPICORQINMEI", unit: "Index", frequency: "quarterly" },
+      ],
+    },
+  },
+  "Trade" => {
+    description: "Australian international trade",
+    sub_industries: {
+      "Trade Balance" => [
+        { name: "Exports", source: "FRED", source_series_id: "XTEXVA01AUM667S", unit: "USD", frequency: "monthly" },
+        { name: "Imports", source: "FRED", source_series_id: "XTIMVA01AUM667S", unit: "USD", frequency: "monthly" },
+      ],
+    },
+  },
+  "Energy" => {
+    description: "Australian energy sector",
+    sub_industries: {
+      "GDP" => [
+        { name: "GDP (energy proxy)", source: "FRED", source_series_id: "NAEXKP01AUQ657S", unit: "AUD", frequency: "quarterly" },
+      ],
+    },
+  },
+}
+
+au_sectors.each do |sector_name, sector_data|
+  sector = Sector.find_or_create_by!(name: sector_name, country: au) do |s|
+    s.description = sector_data[:description]
+  end
+
+  sector_data[:sub_industries].each do |si_name, indicators|
+    sub_industry = SubIndustry.find_or_create_by!(name: si_name, sector: sector)
+
+    indicators.each do |ind|
+      Indicator.find_or_create_by!(source_series_id: ind[:source_series_id]) do |i|
+        i.name = ind[:name]
+        i.sub_industry = sub_industry
+        i.source = ind[:source]
+        i.unit = ind[:unit]
+        i.frequency = ind[:frequency]
+      end
+    end
+  end
+end
+
+# --- Germany Sectors ---
+
+de_sectors = {
+  "Manufacturing" => {
+    description: "German goods production",
+    sub_industries: {
+      "Overall" => [
+        { name: "Industrial Production Index", source: "FRED", source_series_id: "DEUPROINDMISMEI", unit: "Index", frequency: "monthly" },
+      ],
+    },
+  },
+  "Labour" => {
+    description: "German employment and workforce",
+    sub_industries: {
+      "Employment" => [
+        { name: "Unemployment Rate", source: "FRED", source_series_id: "LRHUTTTTDEM156S", unit: "Percent", frequency: "monthly" },
+        { name: "Employment Level", source: "FRED", source_series_id: "LFEMTTTTDEQ647S", unit: "Persons", frequency: "quarterly" },
+      ],
+    },
+  },
+  "Housing" => {
+    description: "German residential real estate",
+    sub_industries: {
+      "Prices" => [
+        { name: "Residential Property Prices", source: "FRED", source_series_id: "QDER628BIS", unit: "Index 2010=100", frequency: "quarterly" },
+      ],
+    },
+  },
+  "Consumer" => {
+    description: "German consumer activity",
+    sub_industries: {
+      "Spending" => [
+        { name: "Retail Sales", source: "FRED", source_series_id: "DEUSLRTTO02IXOBM", unit: "Index", frequency: "monthly" },
+      ],
+      "Confidence" => [
+        { name: "Consumer Confidence", source: "FRED", source_series_id: "CSCICP03DEM665S", unit: "Index", frequency: "monthly" },
+      ],
+    },
+  },
+  "Financial" => {
+    description: "German banking and interest rates",
+    sub_industries: {
+      "Interest Rates" => [
+        { name: "3-Month Interbank Rate", source: "FRED", source_series_id: "IR3TIB01DEM156N", unit: "Percent", frequency: "monthly" },
+        { name: "10-Year Bund Yield", source: "FRED", source_series_id: "IRLTLT01DEM156N", unit: "Percent", frequency: "monthly" },
+      ],
+    },
+  },
+  "Inflation" => {
+    description: "German price levels",
+    sub_industries: {
+      "Consumer Prices" => [
+        { name: "CPI All Items", source: "FRED", source_series_id: "DEUCPIALLMINMEI", unit: "Index", frequency: "monthly" },
+        { name: "Core CPI", source: "FRED", source_series_id: "DEUCPICORMINMEI", unit: "Index", frequency: "monthly" },
+      ],
+    },
+  },
+  "Trade" => {
+    description: "German international trade",
+    sub_industries: {
+      "Trade Balance" => [
+        { name: "Exports", source: "FRED", source_series_id: "XTEXVA01DEM667S", unit: "USD", frequency: "monthly" },
+        { name: "Imports", source: "FRED", source_series_id: "XTIMVA01DEM667S", unit: "USD", frequency: "monthly" },
+      ],
+    },
+  },
+  "Energy" => {
+    description: "German energy sector",
+    sub_industries: {
+      "GDP" => [
+        { name: "GDP (energy proxy)", source: "FRED", source_series_id: "NAEXKP01DEQ189S", unit: "Index", frequency: "quarterly" },
+      ],
+    },
+  },
+}
+
+de_sectors.each do |sector_name, sector_data|
+  sector = Sector.find_or_create_by!(name: sector_name, country: de) do |s|
+    s.description = sector_data[:description]
+  end
+
+  sector_data[:sub_industries].each do |si_name, indicators|
+    sub_industry = SubIndustry.find_or_create_by!(name: si_name, sector: sector)
+
+    indicators.each do |ind|
+      Indicator.find_or_create_by!(source_series_id: ind[:source_series_id]) do |i|
+        i.name = ind[:name]
+        i.sub_industry = sub_industry
+        i.source = ind[:source]
+        i.unit = ind[:unit]
+        i.frequency = ind[:frequency]
+      end
+    end
+  end
+end
+
 puts "Seeded #{Country.count} countries, #{Sector.count} sectors, #{SubIndustry.count} sub-industries, #{Indicator.count} indicators"
