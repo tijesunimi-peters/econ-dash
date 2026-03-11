@@ -1,0 +1,23 @@
+body {
+    background: #f8f9fa;
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0.5rem;
+}
+
+/* Sparkline table */
+.table td {
+    vertical-align: middle;
+}
+
+.table tr[id]:hover {
+    background-color: #e8f4fd;
+}
+
+/* Treemap hover */
+.js-plotly-plot .plotly .cursor-pointer {
+    cursor: pointer;
+}
