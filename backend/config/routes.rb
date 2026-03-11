@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       end
       resources :indicators, only: [:show] do
         get :series, on: :member
+        get :acceleration, on: :member
       end
     end
   end

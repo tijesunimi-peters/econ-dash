@@ -44,3 +44,7 @@ def get_indicator_series(indicator_id, start_date=None, end_date=None):
     if end_date:
         params["end_date"] = end_date
     return _get(f"/indicators/{indicator_id}/series", params=params)
+
+
+def get_indicator_acceleration(indicator_id):
+    return _get(f"/indicators/{indicator_id}/acceleration")

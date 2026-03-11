@@ -11,6 +11,12 @@ module Api
         render json: indicator_json(indicator)
       end
 
+      def acceleration
+        indicator = Indicator.find(params[:id])
+        result = AccelerationService.new(indicator).call
+        render json: result
+      end
+
       def series
         indicator = Indicator.find(params[:id])
         points = indicator.data_points.order(:date)
