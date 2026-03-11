@@ -12,6 +12,8 @@ Rails.application.routes.draw do
           get :momentum
           get :business_cycle
           get :executive_summary
+          get :correlations
+          get 'compare/:other_id', action: :compare
         end
       end
       resources :sectors, only: [:show] do

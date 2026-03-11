@@ -61,6 +61,23 @@ module Api
         render json: data
       end
 
+      def correlations
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_correlations/#{country.id}", expires_in: 1.hour) do
+          CorrelationService.new(country).call
+        end
+        render json: data
+      end
+
+      def compare
+        country = Country.find(params[:id])
+        other = Country.find(params[:other_id])
+        data = Rails.cache.fetch("country_compare/#{country.id}/#{other.id}", expires_in: 1.hour) do
+          CrossCountryService.new(country, other).call
+        end
+        render json: data
+      end
+
       private
 
       def country_json(country)

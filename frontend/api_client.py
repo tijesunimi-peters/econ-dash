@@ -68,3 +68,11 @@ def get_country_business_cycle(country_id):
 
 def get_country_executive_summary(country_id):
     return _get(f"/countries/{country_id}/executive_summary")
+
+
+def get_country_correlations(country_id):
+    return _get(f"/countries/{country_id}/correlations")
+
+
+def get_country_compare(country_id, other_id):
+    return _get(f"/countries/{country_id}/compare/{other_id}")
