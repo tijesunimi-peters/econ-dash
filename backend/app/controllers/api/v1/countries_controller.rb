@@ -13,6 +13,14 @@ module Api
         )
       end
 
+      def summary
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_summary/#{country.id}", expires_in: 1.hour) do
+          SectorSummaryService.new(country).call
+        end
+        render json: { country: country_json(country), sectors: data }
+      end
+
       private
 
       def country_json(country)
