@@ -53,6 +53,14 @@ module Api
         render json: data
       end
 
+      def executive_summary
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_executive_summary/#{country.id}", expires_in: 1.hour) do
+          ExecutiveSummaryService.new(country).call
+        end
+        render json: data
+      end
+
       private
 
       def country_json(country)

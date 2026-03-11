@@ -64,3 +64,7 @@ def get_country_momentum(country_id):
 
 def get_country_business_cycle(country_id):
     return _get(f"/countries/{country_id}/business_cycle")
+
+
+def get_country_executive_summary(country_id):
+    return _get(f"/countries/{country_id}/executive_summary")

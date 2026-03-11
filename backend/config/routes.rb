@@ -11,6 +11,7 @@ Rails.application.routes.draw do
           get :anomalies
           get :momentum
           get :business_cycle
+          get :executive_summary
         end
       end
       resources :sectors, only: [:show] do
