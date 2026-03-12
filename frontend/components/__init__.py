@@ -1821,3 +1821,50 @@ def build_trade_flows(trade_data):
         }),
         html.Div(sections, style={"display": "flex", "flexDirection": "column", "gap": "16px"})
     ], className="trade-panel")
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# Phase 1-4 Components (New Modules)
+# ═════════════════════════════════════════════════════════════════════════════
+
+# Phase 1: Foundation Components
+from .grid_layout import (
+    responsive_grid,
+    dashboard_grid,
+    grid_item,
+    sidebar_layout,
+    stacked_grid,
+    card_grid,
+)
+
+from .collapsible_card import (
+    build_collapsible_card,
+    build_collapsible_panel,
+    register_collapsible_callbacks,
+)
+
+from .sidebar_layout import (
+    build_sidebar_layout,
+    build_sidebar_context_card,
+    build_sticky_header,
+    build_sidebar_panel_group,
+)
+
+# Phase 2: Homepage Redesign
+from .homepage_redesign import (
+    build_redesigned_homepage,
+    apply_preset_config,
+)
+
+# Phase 3: Drill-Down Enhancements
+from .drill_down_enhancements import (
+    build_drill_down_detail_view,
+    build_related_items_chips,
+    build_detail_view_controls,
+)
+
+# Phase 4: Comparison Mode
+from .comparison_mode import (
+    build_comparison_view,
+    build_sync_scroll_callback_js,
+)
