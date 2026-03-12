@@ -1,13 +1,15 @@
 # Econ Dashboard Roadmap
 
 **Last Updated:** 2026-03-12
-**Current Status:** Phase 4 ✅ COMPLETE (Trade Flows & Supply Chain)
-**Next Priority:** Quick Wins & Tier 3 Features
+**Strategic Phases Status:** 4/4 ✅ COMPLETE (Policy, Sentiment, Structural, Trade)
+**Layout Modernization Status:** 3/5 phases ✅ COMPLETE (Foundation, Polish & Performance, Drill-Down)
+**Next Priority:** Phase 2 (Homepage Redesign) → Phase 4 (Comparison Mode)
 
 ---
 
 ## 📊 What's Complete
 
+### Strategic Context Phases
 | Phase | Feature | Status | Notes |
 |-------|---------|--------|-------|
 | 1 | Policy Timeline | ✅ | 12 central bank/govt decisions × 5 countries |
@@ -15,9 +17,46 @@
 | 3 | Structural Health | ✅ | 13 metrics (demographics, debt, productivity) |
 | 4 | Trade Flows | ✅ | Exports, imports, FDI, supply chain metrics |
 
+### Layout Modernization Phases
+| Phase | Feature | Status | Notes |
+|-------|---------|--------|-------|
+| 1 | Foundation | ✅ | Responsive grid, collapsible cards, sidebar layout |
+| 5 | Polish & Performance | ✅ | Animations, storage, performance monitoring, mobile |
+| 3 | Drill-Down Improvements | ✅ | Sidebar detail views, related items, anomalies/factors |
+
 ---
 
 ## 🎯 What's Next (By Priority)
+
+### Phase 3: Drill-Down Improvements ✅ COMPLETE (2026-03-12)
+**Status:** COMPLETE | **Effort:** 6 hours | **Priority:** DONE
+- ✅ Implemented sidebar layout for detail/drill-down views (uses Phase 1 foundation)
+- ✅ Added sticky header with controls (breadcrumb + buttons)
+- ✅ Built context card showing current selection metrics
+- ✅ Added related items discovery (clickable chips)
+- ✅ Responsive: side-by-side on desktop, stacked on mobile
+- ✅ Anomalies and causal factors summary cards
+- **Files:** drill_down_enhancements.py (350 lines), drill_down.css (350 lines), PHASE3_IMPLEMENTATION_GUIDE.md
+- **Next:** Phase 2 (Homepage Redesign)
+
+### Phase 2: Homepage Redesign (Layout Modernization)
+**Status:** 📋 PLANNED | **Effort:** 2 weeks | **Priority:** HIGH
+- Reorganize panels into responsive 2-3 column grid (uses Phase 1)
+- Make Policy, Sentiment, Structural, Trade panels collapsible (uses Phase 1)
+- Add 4 preset view configurations (uses Phase 5 storage)
+- Implement intelligent panel sizing and ordering
+- Test at 4 breakpoints (4K, 1440p, 1080p, mobile)
+- **Ready after:** Phase 3 complete
+
+### Phase 4: Comparison Mode Enhancement (Layout Modernization)
+**Status:** 📋 PLANNED | **Effort:** 1 week | **Priority:** MEDIUM
+- Implement synchronized scrolling for side-by-side countries
+- Add divergence highlighting (heatmap when metrics diverge)
+- Create side-by-side metric comparison cards
+- Support 3-way comparison (optional overlay)
+- **Ready after:** Phase 2 complete
+
+---
 
 ### Tier 2: Quick Wins (1-2 hours each)
 
