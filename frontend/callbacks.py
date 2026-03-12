@@ -16,6 +16,7 @@ from components import (
     build_momentum_scoreboard,
     build_cross_country_comparison,
     build_correlation_heatmap,
+    _build_factors_compact,
 )
 
 
@@ -150,7 +151,7 @@ def register_callbacks(app):
         active = [trigger == f"date-{p.lower()}" for p in ["ytd", "1y", "2y", "5y"]]
         return {"preset": preset}, *active
 
-    # ── Intelligence Panel (cycle + executive summary, merged) ──
+    # ── Intelligence Panel (cycle + executive summary + causal factors) ──
     # Visible at sectors and sub_industries levels; hidden at indicator level
     @app.callback(
         Output("intelligence-panel-container", "children"),
@@ -170,7 +171,12 @@ def register_callbacks(app):
         if isinstance(summary_data, dict) and "error" in summary_data:
             summary_data = None
 
-        return build_intelligence_panel(cycle_data, summary_data)
+        factors_data = api_client.get_country_causal_factors(country_id)
+        factors_list = None
+        if not isinstance(factors_data, dict) or "error" not in factors_data:
+            factors_list = factors_data.get("factors") if isinstance(factors_data, dict) else None
+
+        return build_intelligence_panel(cycle_data, summary_data, factors_list)
 
     # ── Anomaly Alerts ──
     # Visible at sectors and sub_industries; hidden at indicator drill-down

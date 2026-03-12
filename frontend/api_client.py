@@ -76,3 +76,7 @@ def get_country_correlations(country_id):
 
 def get_country_compare(country_id, other_id):
     return _get(f"/countries/{country_id}/compare/{other_id}")
+
+
+def get_country_causal_factors(country_id):
+    return _get(f"/countries/{country_id}/causal_factors")
