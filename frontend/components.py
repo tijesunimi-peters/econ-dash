@@ -333,10 +333,10 @@ PHASE_COLORS = {
 }
 
 
-def build_intelligence_panel(cycle_data, summary_data):
+def build_intelligence_panel(cycle_data, summary_data, factors_data=None):
     """Unified panel: cycle clock (left) + traffic lights, leading indicators,
-    sector recs, and narrative bullets (right)."""
-    if not cycle_data and not summary_data:
+    sector recs, narrative bullets, and causal factors (right)."""
+    if not cycle_data and not summary_data and not factors_data:
         return html.Div()
 
     # ── Left column: Cycle Clock ──
@@ -393,6 +393,15 @@ def build_intelligence_panel(cycle_data, summary_data):
             )
             right_children.append(_build_narrative_compact(narrative))
 
+    # Causal factors (if available)
+    if factors_data:
+        factors_panel = _build_factors_compact(factors_data)
+        if factors_panel.children:  # Only add if there's content
+            right_children.append(
+                html.Hr(style={"borderColor": COLORS["border"], "margin": "8px 0"})
+            )
+            right_children.append(factors_panel)
+
     return html.Div([
         dbc.Row([
             dbc.Col(left, width=6),
@@ -431,14 +440,41 @@ def _build_cycle_clock_compact(cycle_data):
             showlegend=False, hoverinfo="skip",
         ))
 
+    # Use cycle_position for precise 2D positioning within quadrant
+    cycle_pos = cycle_data.get("cycle_position", {})
+    x_pos = cycle_pos.get("x_position", 0.5)  # 0=trend low, 1=trend high
+    y_pos = cycle_pos.get("y_position", 0.5)  # 0=decelerating, 1=accelerating
+    momentum = cycle_pos.get("momentum", 0)
+
+    # Map X,Y position to polar coordinates
+    # X-axis determines distance from center (0=close, 1=far)
+    # Y-axis determines angular offset within quadrant
     current_angle = PHASE_ANGLES.get(current_phase, 0)
+    quadrant_width = 90  # degrees per quadrant
+
+    # Distance from center (0.3-0.75 range)
+    radius = 0.3 + x_pos * 0.45
+
+    # Angular offset within quadrant based on Y position (-45 to +45 from quadrant center)
+    angular_offset = (y_pos - 0.5) * quadrant_width / 2
+    final_angle = current_angle + angular_offset
+
+    # Marker size and color based on momentum
+    marker_size = 20 + abs(momentum) * 2  # Larger if high momentum
+    marker_color = phase_color if momentum >= 0 else COLORS["negative"]  # Red if decelerating
+
     fig.add_trace(go.Scatterpolar(
-        r=[0.55], theta=[current_angle],
+        r=[radius], theta=[final_angle],
         mode="markers",
-        marker=dict(size=26, color=phase_color,
+        marker=dict(size=marker_size, color=marker_color,
                     line=dict(width=3, color=COLORS["text"]), symbol="circle"),
         showlegend=False,
-        hovertemplate=f"<b>{current_phase.title()}</b><br>{duration} months<extra></extra>",
+        hovertemplate=(
+            f"<b>{current_phase.title()}</b><br>"
+            f"{duration} months<br>"
+            f"Position: X={x_pos:.2f}, Y={y_pos:.2f}<br>"
+            f"Momentum: {momentum:.2f}<extra></extra>"
+        ),
     ))
 
     # Trail
@@ -749,3 +785,131 @@ def build_correlation_heatmap(corr_data):
         ]))
 
     return html.Div(content, className="chart-card")
+
+
+# ── Causal Factors Panel ──────────────────────────────────────────
+
+def _build_factors_compact(factors_data):
+    """Build compact causal factors chips for the intelligence panel."""
+    if not factors_data or not isinstance(factors_data, list) or len(factors_data) == 0:
+        return html.Div()
+
+    # Take top 5 factors
+    top_factors = factors_data[:5]
+
+    chips = []
+    for factor in top_factors:
+        correlation = factor.get("correlation_with_sector", 0)
+        confidence = factor.get("confidence", 0)
+        name = factor.get("name", "Unknown")
+        affected_sectors = factor.get("affected_sectors", [])
+        proxy_status = factor.get("proxy_status", "unknown")
+
+        # Color coding based on confidence
+        if confidence >= 0.7:
+            bg_color = "rgba(39, 174, 96, 0.15)"  # Green
+            border_color = COLORS["positive"]
+        elif confidence >= 0.5:
+            bg_color = "rgba(241, 196, 15, 0.15)"  # Yellow
+            border_color = COLORS["warning"]
+        else:
+            bg_color = "rgba(192, 57, 43, 0.15)"  # Red
+            border_color = COLORS["negative"]
+
+        # Status indicator
+        status_emoji = {"rising": "📈", "falling": "📉", "stable": "➡️", "unknown": "❓"}.get(
+            proxy_status, "?"
+        )
+
+        # Build sector tags
+        sector_tags = []
+        for sector in affected_sectors[:2]:  # Show max 2 sectors
+            sector_tags.append(
+                html.Span(
+                    sector,
+                    style={
+                        "display": "inline-block",
+                        "fontSize": "0.65rem",
+                        "padding": "2px 6px",
+                        "backgroundColor": COLORS["surface_hover"],
+                        "borderRadius": "3px",
+                        "marginRight": "4px",
+                        "marginTop": "4px",
+                        "color": COLORS["text_secondary"],
+                    },
+                )
+            )
+        if len(affected_sectors) > 2:
+            sector_tags.append(
+                html.Span(
+                    f"+{len(affected_sectors) - 2}",
+                    style={
+                        "display": "inline-block",
+                        "fontSize": "0.65rem",
+                        "marginTop": "4px",
+                        "color": COLORS["text_muted"],
+                    },
+                )
+            )
+
+        # Build chip
+        chip = html.Div(
+            [
+                html.Div(
+                    [
+                        html.Span(
+                            f"{status_emoji} {name}",
+                            style={
+                                "fontSize": "0.75rem",
+                                "fontWeight": "600",
+                                "color": COLORS["text"],
+                                "display": "block",
+                                "marginBottom": "4px",
+                            },
+                        ),
+                        html.Span(
+                            f"r={correlation:.2f}",
+                            style={
+                                "fontSize": "0.65rem",
+                                "fontFamily": "monospace",
+                                "color": border_color,
+                                "fontWeight": "600",
+                            },
+                        ),
+                    ]
+                ),
+                html.Div(sector_tags, style={"display": "flex", "flexWrap": "wrap"}),
+            ],
+            style={
+                "padding": "8px 10px",
+                "backgroundColor": bg_color,
+                "border": f"1px solid {border_color}",
+                "borderRadius": "4px",
+                "marginRight": "8px",
+                "marginBottom": "8px",
+                "minWidth": "120px",
+                "flex": "0 0 auto",
+            },
+            title=factor.get("description", ""),
+        )
+        chips.append(chip)
+
+    if not chips:
+        return html.Div()
+
+    return html.Div(
+        [
+            html.Div(
+                "Causal Factors",
+                style={
+                    "fontSize": "0.75rem",
+                    "fontWeight": "600",
+                    "color": COLORS["text_secondary"],
+                    "marginBottom": "8px",
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.5px",
+                },
+            ),
+            html.Div(chips, style={"display": "flex", "flexWrap": "wrap"}),
+        ]
+    )
