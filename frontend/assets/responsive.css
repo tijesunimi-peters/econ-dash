@@ -1,0 +1,512 @@
+/* ===== Responsive Grid System & Breakpoints ===== */
+
+/*
+   Breakpoint Reference:
+   - 4K (3840px+):   3-column layouts, max content width
+   - 2K (2560px):    3-column layouts, generous spacing
+   - 1920p (1920px): 2-column layouts
+   - 1440p (1440px): 2-column layouts
+   - 1080p (1025-1440px): 1-2 column layouts
+   - Tablet (768-1024px): 1 column
+   - Mobile (<768px): 1 column, stacked
+*/
+
+/* ===== Root Variables (Responsive) ===== */
+
+:root {
+    --spacing-base: 16px;
+    --spacing-lg: 24px;
+    --spacing-sm: 8px;
+    --grid-gap: 16px;
+    --max-content-width: 1400px;
+    --sidebar-width: 25%;
+    --main-width: 75%;
+}
+
+@media (min-width: 2560px) {
+    :root {
+        --max-content-width: 1800px;
+        --spacing-lg: 32px;
+    }
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 100%;
+        --main-width: 100%;
+        --spacing-lg: 16px;
+    }
+}
+
+/* ===== Responsive Grid ===== */
+
+.responsive-grid {
+    display: grid;
+    gap: var(--grid-gap);
+    width: 100%;
+}
+
+/* Adaptive grid (auto-fit with min-width constraint) */
+.responsive-grid.adaptive {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+/* Dashboard Grid - adapts by viewport */
+.dashboard-grid {
+    display: grid;
+    gap: var(--grid-gap);
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* 4K: 3 columns */
+@media (min-width: 2560px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: var(--max-content-width);
+    }
+
+    .dashboard-grid.adaptive {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* 1920p: 2 columns */
+@media (min-width: 1920px) and (max-width: 2559px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 90vw;
+    }
+
+    .dashboard-grid.adaptive {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 1440p: 2 columns */
+@media (min-width: 1440px) and (max-width: 1919px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 95vw;
+    }
+
+    .dashboard-grid.adaptive {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* 1080p: 1-2 columns (auto-fit) */
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        max-width: 100%;
+    }
+
+    .dashboard-grid.adaptive {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    }
+}
+
+/* Tablet: 1 column */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Mobile: 1 column */
+@media (max-width: 767px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Card Grid ===== */
+
+.card-grid {
+    display: grid;
+    gap: var(--grid-gap);
+    width: 100%;
+}
+
+/* 4K: 5+ cards per row */
+@media (min-width: 2560px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+/* 1920p: 4-5 cards per row */
+@media (min-width: 1920px) and (max-width: 2559px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+}
+
+/* 1440p: 3-4 cards per row */
+@media (min-width: 1440px) and (max-width: 1919px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}
+
+/* 1080p: 2-3 cards per row */
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}
+
+/* Tablet: 2 cards per row */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile: 1 card per row */
+@media (max-width: 767px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Grid Item ===== */
+
+.grid-item {
+    min-width: 0; /* Prevents overflow of long content */
+}
+
+/* ===== Stacked Grid ===== */
+
+.stacked-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--grid-gap);
+    width: 100%;
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+}
+
+/* ===== Sidebar Layout ===== */
+
+.sidebar-layout {
+    display: grid;
+    gap: 0;
+    width: 100%;
+}
+
+/* Desktop: 2 columns */
+@media (min-width: 1025px) {
+    .sidebar-layout {
+        grid-template-columns: var(--sidebar-width) 1fr;
+    }
+
+    .sidebar-column {
+        position: sticky;
+        top: 0;
+        max-height: calc(100vh - 150px);
+        overflow-y: auto;
+        padding-right: 16px;
+        border-right: 1px solid var(--border);
+    }
+
+    .main-column {
+        padding-left: 16px;
+        overflow-y: auto;
+    }
+
+    .sidebar-divider {
+        width: 4px;
+        cursor: col-resize;
+        background: var(--border);
+        transition: background 0.2s;
+    }
+
+    .sidebar-divider:hover {
+        background: var(--primary);
+    }
+}
+
+/* Tablet/Mobile: 1 column (stack) */
+@media (max-width: 1024px) {
+    .sidebar-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-column {
+        position: relative;
+        max-height: none;
+        overflow-y: visible;
+        padding-right: 0;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .main-column {
+        padding-left: 0;
+    }
+
+    .sidebar-divider {
+        display: none;
+    }
+}
+
+/* ===== Sticky Header ===== */
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px var(--spacing-base);
+    margin-bottom: var(--spacing-base);
+    transition: box-shadow 0.2s;
+}
+
+.sticky-header.scrolled {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Collapsible Cards ===== */
+
+.collapsible-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s;
+}
+
+.collapsible-card:hover {
+    border-color: var(--text-muted);
+}
+
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+}
+
+.collapsible-header:hover {
+    background: var(--surface-hover);
+}
+
+.collapsible-header-left {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.collapsible-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.15s;
+    text-align: left;
+}
+
+.collapsible-toggle-btn:hover {
+    color: var(--primary);
+}
+
+.collapsible-title {
+    margin: 0;
+}
+
+.collapsible-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+.collapsible-header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.collapsible-indicator {
+    display: inline-flex;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s;
+}
+
+.collapsible-indicator.collapsible-closed {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    padding: 16px;
+    background: var(--surface);
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+/* ===== Responsive Panel Sizes ===== */
+
+/* Full-width panel at tablet/mobile */
+@media (max-width: 1024px) {
+    .collapsible-panel {
+        margin-bottom: var(--spacing-base);
+    }
+}
+
+/* ===== Floating Action Buttons ===== */
+
+.floating-actions {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 200;
+}
+
+@media (max-width: 768px) {
+    .floating-actions {
+        bottom: 16px;
+        right: 16px;
+    }
+}
+
+/* ===== Container Constraints ===== */
+
+.dashboard-container {
+    max-width: var(--max-content-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-base);
+    width: 100%;
+}
+
+@media (min-width: 2560px) {
+    .dashboard-container {
+        max-width: 1800px;
+        padding: 0 var(--spacing-lg);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 0 12px;
+    }
+}
+
+/* ===== Scrollbar Styling ===== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ===== Touch-Friendly Buttons (Mobile) ===== */
+
+@media (max-width: 768px) {
+    .btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .form-control,
+    .form-select,
+    .Select-control {
+        min-height: 44px;
+    }
+}
+
+/* ===== Utility Classes ===== */
+
+.w-full {
+    width: 100%;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.overflow-auto {
+    overflow: auto;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+.gap-3 {
+    gap: 12px;
+}
+
+.gap-4 {
+    gap: 16px;
+}
+
+.gap-6 {
+    gap: 24px;
+}
+
+/* ===== Print Media ===== */
+
+@media print {
+    .dashboard-header,
+    .control-bar,
+    .sticky-header,
+    .floating-actions {
+        display: none;
+    }
+
+    .sidebar-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-column {
+        border: none;
+        margin-bottom: 16px;
+    }
+}

@@ -1,0 +1,478 @@
+/* ===== Phase 2: Homepage Redesign ===== */
+
+/*
+   Responsive homepage layout using Phase 1 grid system
+   - 4K (3840px): 3-column grid with full intelligence + sentiment + treemap
+   - 1920p: 2-column grid
+   - 1440p: 2-column grid with 2/3 treemap, 1/3 sentiment
+   - 1080p: Auto-fit grid, responsive wrapping
+   - Tablet: 1 column, stacked
+   - Mobile: 1 column, full-width
+*/
+
+/* ===== Header Styling ===== */
+
+.dashboard-header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0 12px 0;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 100;
+}
+
+.dashboard-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.dashboard-header p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 4px 0 0 0;
+}
+
+.dashboard-header-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.header-dropdown {
+    min-width: 150px;
+    max-width: 200px;
+}
+
+/* Ensure dropdown menu appears above other content */
+.header-dropdown > div > div:nth-child(2) {
+    z-index: 1000 !important;
+    position: absolute;
+    top: 100%;
+    left: 0;
+}
+
+/* ===== Quick Stats Section ===== */
+
+.quick-stats-section {
+    margin: 16px 0;
+    padding: 0;
+}
+
+.section-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.quick-stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.quick-stat-card:hover {
+    border-color: var(--text-muted);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.stat-value.positive {
+    color: var(--positive);
+}
+
+.stat-value.negative {
+    color: var(--negative);
+}
+
+.stat-value.warning {
+    color: var(--warning);
+}
+
+.stat-value.neutral {
+    color: var(--neutral);
+}
+
+.stat-subtitle {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* ===== Dashboard Grid ===== */
+
+.dashboard-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+/* Intelligent Panel + Treemap (1/3 + 2/3 split) */
+.dashboard-grid.intelligence-treemap {
+    grid-template-columns: 1fr 2fr;
+}
+
+/* 4K: Full 3-column grid */
+@media (min-width: 2560px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dashboard-grid.intelligence-treemap {
+        grid-template-columns: 1fr 2fr;
+    }
+}
+
+/* 1920p: 2-column grid */
+@media (min-width: 1920px) and (max-width: 2559px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-grid.intelligence-treemap {
+        grid-template-columns: 1fr 2fr;
+    }
+}
+
+/* 1440p: 2-column grid */
+@media (min-width: 1440px) and (max-width: 1919px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dashboard-grid.intelligence-treemap {
+        grid-template-columns: 1fr 2fr;
+    }
+}
+
+/* 1080p: Auto-fit grid */
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
+
+    .dashboard-grid.intelligence-treemap {
+        grid-template-columns: 1fr 2fr;
+    }
+}
+
+/* Tablet: 1 column */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-grid.intelligence-treemap {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Panel Styling ===== */
+
+.collapsible-panel {
+    margin-bottom: 16px;
+    animation: slideInBottom 0.3s ease-out;
+}
+
+.collapsible-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.collapsible-card:hover {
+    border-color: var(--text-muted);
+}
+
+.collapsible-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.collapsible-header:hover {
+    background: var(--surface-hover);
+}
+
+.collapsible-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.collapsible-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.15s ease;
+}
+
+.collapsible-toggle-btn:hover {
+    color: var(--primary);
+}
+
+.collapsible-indicator {
+    display: inline-flex;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s ease;
+}
+
+.collapsible-indicator.closed {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    padding: 16px;
+    background: var(--surface);
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+.collapsible-content.closed {
+    max-height: 0;
+    opacity: 0;
+    padding: 0 16px;
+}
+
+/* ===== Control Bar (Drill-down) ===== */
+
+.control-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: none;
+    gap: 12px;
+}
+
+.control-bar.active {
+    display: flex;
+    align-items: center;
+    animation: slideInTop 0.3s ease-out;
+}
+
+/* ===== Drill-Down Area ===== */
+
+#drill-down-area {
+    display: none;
+}
+
+#drill-down-area.active {
+    display: block;
+    animation: slideInBottom 0.3s ease-out;
+}
+
+.drill-tabs-container {
+    margin-bottom: 16px;
+}
+
+.drill-tab-content {
+    margin-bottom: 16px;
+}
+
+/* ===== Treemap Styling ===== */
+
+.treemap-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-top: none;
+}
+
+/* ===== Anomaly Container ===== */
+
+#anomaly-container {
+    margin-bottom: 16px;
+}
+
+#anomaly-container .alert {
+    animation: slideInTop 0.3s ease-out;
+    margin-bottom: 12px;
+}
+
+/* ===== Responsive Adjustments ===== */
+
+@media (max-width: 1024px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.25rem;
+        width: 100%;
+    }
+
+    .header-dropdown {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .quick-stat-card {
+        padding: 10px;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 12px 0 10px 0;
+        margin-bottom: 12px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.1rem;
+    }
+
+    .dashboard-header p {
+        font-size: 0.8rem;
+    }
+
+    .quick-stats-section {
+        margin: 12px 0;
+    }
+
+    .quick-stat-card {
+        padding: 8px;
+        border-radius: 6px;
+    }
+
+    .stat-value {
+        font-size: 1rem;
+    }
+
+    .stat-label {
+        font-size: 0.65rem;
+    }
+
+    .stat-subtitle {
+        font-size: 0.65rem;
+    }
+
+    .collapsible-panel {
+        margin-bottom: 12px;
+    }
+
+    .collapsible-header {
+        padding: 10px 12px;
+    }
+
+    .collapsible-content {
+        padding: 12px;
+    }
+
+    .control-bar {
+        padding: 10px 12px;
+        margin-bottom: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+
+/* ===== Animation Classes ===== */
+
+@keyframes slideInTop {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInBottom {
+    from {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ===== Print Styles ===== */
+
+@media print {
+    .dashboard-header,
+    .control-bar,
+    #drill-down-area {
+        display: none;
+    }
+
+    .collapsible-card {
+        page-break-inside: avoid;
+    }
+}

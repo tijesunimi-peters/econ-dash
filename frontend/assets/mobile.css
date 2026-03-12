@@ -1,0 +1,617 @@
+/* ===== Mobile Optimization & Touch-Friendly Design ===== */
+
+/*
+   Mobile-First Approach:
+   - Base styles optimized for mobile (375-667px)
+   - Progressive enhancement for larger screens
+   - Touch targets 44px minimum
+   - Readable fonts at smaller sizes
+   - Optimized for portrait orientation (primary mobile use)
+*/
+
+/* ===== Touch-Friendly Touch Targets ===== */
+
+/* Minimum touch target size: 44px × 44px */
+.btn,
+.btn-sm,
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+a.btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+}
+
+/* Form controls touch-friendly */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select,
+textarea,
+.form-control {
+    min-height: 44px;
+    padding: 12px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+}
+
+/* Dropdown/Select */
+.dash-dropdown .Select-control,
+.Select-control {
+    min-height: 44px;
+}
+
+/* Checkboxes and radios */
+input[type="checkbox"],
+input[type="radio"] {
+    width: 24px;
+    height: 24px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+/* Ensure clickable elements have proper spacing */
+a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ===== Mobile Typography ===== */
+
+/* Prevent font sizing issues on iOS */
+body {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Readable font sizes on mobile */
+@media (max-width: 767px) {
+    body {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+        margin-bottom: 12px;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+        margin-bottom: 10px;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    h4, h5 {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    p {
+        margin-bottom: 12px;
+        line-height: 1.6;
+    }
+
+    /* Labels more readable */
+    label {
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+}
+
+/* ===== Mobile Spacing ===== */
+
+@media (max-width: 767px) {
+    /* Reduce padding/margins on mobile */
+    body {
+        --spacing-lg: 16px;
+        --spacing-base: 12px;
+        --spacing-sm: 6px;
+    }
+
+    .container,
+    .container-fluid {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    /* Reduce card padding */
+    .card,
+    .collapsible-card,
+    .panel {
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    /* Compact grid gaps */
+    .grid-item,
+    .card-grid {
+        gap: 12px;
+    }
+
+    /* Reduce header padding */
+    .dashboard-header {
+        padding: 12px 12px 10px;
+        margin-bottom: 12px;
+    }
+}
+
+/* ===== Mobile Layout ===== */
+
+@media (max-width: 767px) {
+    /* Single column layout */
+    .container-fluid {
+        max-width: 100%;
+    }
+
+    /* Hide/reduce sidebar on mobile */
+    .sidebar-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-column {
+        order: 1;
+        margin-bottom: 20px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 12px;
+        position: relative;
+        max-height: none;
+    }
+
+    .main-column {
+        order: 2;
+        padding-left: 0;
+    }
+
+    .sidebar-divider {
+        display: none;
+    }
+
+    /* Full-width panels */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Stack cards */
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Reduce chart margins for mobile */
+    .plotly-chart {
+        margin: 12px 0;
+    }
+}
+
+/* ===== Mobile Navigation ===== */
+
+@media (max-width: 767px) {
+    /* Sticky header with mobile optimizations */
+    .dashboard-header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* Mobile breadcrumb */
+    .breadcrumb-nav {
+        font-size: 0.8rem;
+        white-space: nowrap;
+        overflow-x: auto;
+        padding: 8px 0;
+        margin: 0;
+    }
+
+    /* Dropdown button sizing */
+    .header-dropdown {
+        min-width: 150px;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    /* Tabs stack vertically on very small screens */
+    .nav-tabs {
+        flex-direction: column;
+    }
+
+    .nav-tabs .nav-item {
+        width: 100%;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-tabs .nav-link {
+        border-radius: 0;
+    }
+}
+
+/* ===== Mobile Tables ===== */
+
+@media (max-width: 767px) {
+    /* Stack table columns vertically */
+    table {
+        font-size: 0.85rem;
+    }
+
+    /* Scrollable table wrapper */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 12px;
+    }
+
+    th, td {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    /* Hide less important columns on mobile */
+    .hidden-mobile {
+        display: none;
+    }
+}
+
+/* ===== Mobile Forms ===== */
+
+@media (max-width: 767px) {
+    /* Stack form fields */
+    .form-group {
+        margin-bottom: 12px;
+    }
+
+    /* Full-width inputs */
+    .form-control,
+    .form-select,
+    input,
+    select,
+    textarea {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Button groups stack */
+    .btn-group {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group > .btn {
+        width: 100%;
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+
+    /* Checkboxes and radios */
+    .form-check {
+        padding-left: 0;
+        margin-bottom: 12px;
+    }
+
+    .form-check-input {
+        margin-left: 0;
+        margin-right: 8px;
+    }
+}
+
+/* ===== Mobile Charts ===== */
+
+@media (max-width: 767px) {
+    /* Reduce chart height on mobile */
+    .plotly-chart {
+        height: 300px !important;
+    }
+
+    /* Responsive chart margins */
+    .chart-container {
+        margin: 0 -12px;
+        padding: 0 12px;
+    }
+
+    /* Disable chart mode bar on mobile (save space) */
+    .plotly-modebar {
+        display: none;
+    }
+}
+
+/* ===== Mobile Modals ===== */
+
+@media (max-width: 767px) {
+    .modal-dialog {
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .modal-content {
+        border-radius: 0;
+        border: none;
+        height: 100vh;
+        max-height: 100vh;
+    }
+
+    .modal-body {
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+
+    /* Slide modal in from bottom */
+    .modal.fade .modal-dialog {
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .modal.show .modal-dialog {
+        transform: translateY(0);
+    }
+}
+
+/* ===== Mobile Dropdowns ===== */
+
+@media (max-width: 767px) {
+    .dropdown-menu {
+        position: fixed;
+        left: 0;
+        right: 0;
+        width: 100% !important;
+        margin: 0;
+        border-radius: 0;
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+
+    .dropdown-item {
+        padding: 12px 16px;
+        font-size: 1rem;
+    }
+}
+
+/* ===== Mobile Icons ===== */
+
+@media (max-width: 767px) {
+    /* Larger icons for easy tapping */
+    .icon {
+        min-width: 32px;
+        min-height: 32px;
+        font-size: 1.5rem;
+    }
+
+    /* Icon-only buttons */
+    .btn-icon {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* ===== Mobile Scrolling ===== */
+
+@media (max-width: 767px) {
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Custom scrollbar for mobile */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+    }
+
+    /* Disable scrollbar on iOS */
+    .ios ::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* ===== Mobile Keyboard Handling ===== */
+
+@media (max-width: 767px) {
+    /* Show keyboard-triggered elements */
+    .keyboard-visible {
+        display: block;
+    }
+
+    /* Adjust layout when virtual keyboard visible */
+    .with-keyboard-visible {
+        padding-bottom: 0; /* Adjust if needed */
+    }
+
+    /* Focus states visible on mobile */
+    input:focus,
+    textarea:focus,
+    select:focus,
+    button:focus {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+}
+
+/* ===== Mobile Tooltips ===== */
+
+@media (max-width: 767px) {
+    .tooltip {
+        display: none;
+    }
+
+    .tooltip.mobile-visible {
+        display: block;
+        position: fixed;
+        z-index: 5000;
+        font-size: 0.85rem;
+        padding: 8px 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+    }
+}
+
+/* ===== Mobile Floating Elements ===== */
+
+@media (max-width: 767px) {
+    /* Stack floating buttons vertically */
+    .floating-actions {
+        bottom: 16px;
+        right: 16px;
+        flex-direction: column;
+    }
+
+    .floating-actions .btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 28px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* ===== Mobile Landscape Mode ===== */
+
+@media (max-height: 500px) and (orientation: landscape) {
+    /* Reduce spacing in landscape */
+    body {
+        --spacing-lg: 12px;
+    }
+
+    h1, h2, h3 {
+        margin-bottom: 6px;
+    }
+
+    .dashboard-header {
+        padding: 6px 12px;
+    }
+
+    /* Hide non-essential elements in landscape */
+    .dashboard-header p {
+        display: none;
+    }
+}
+
+/* ===== Orientation Detection ===== */
+
+@media (orientation: portrait) {
+    /* Portrait mode (taller than wide) */
+    .portrait-only {
+        display: block;
+    }
+
+    .landscape-only {
+        display: none;
+    }
+}
+
+@media (orientation: landscape) {
+    /* Landscape mode (wider than tall) */
+    .portrait-only {
+        display: none;
+    }
+
+    .landscape-only {
+        display: block;
+    }
+}
+
+/* ===== Safari iOS Specific ===== */
+
+@supports (padding: max(0px)) {
+    /* Safe area support for notched devices */
+    body {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-top: max(12px, env(safe-area-inset-top));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    .sticky-header {
+        padding-top: max(12px, env(safe-area-inset-top));
+    }
+}
+
+/* ===== Dark Mode On Mobile ===== */
+
+@media (prefers-color-scheme: dark) {
+    /* Already dark theme, no changes needed */
+}
+
+/* ===== High DPI / Retina Display ===== */
+
+@media (-webkit-min-device-pixel-ratio: 2),
+       (min-resolution: 192dpi) {
+    /* Sharper borders on high-DPI displays */
+    .border,
+    .card,
+    .btn {
+        border-width: 1px;
+    }
+
+    /* Optimize font rendering */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* ===== Low Power Mode Detection ===== */
+
+@media (prefers-reduced-data: reduce) {
+    /* Reduce animations and effects */
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    /* Don't auto-play videos */
+    video {
+        autoplay: none;
+    }
+
+    /* Reduce image quality/size could be handled here */
+}
+
+/* ===== Print Styles (Mobile) ===== */
+
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+
+    .dashboard-header,
+    .control-bar,
+    .navigation {
+        display: none;
+    }
+
+    .card {
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+    }
+}

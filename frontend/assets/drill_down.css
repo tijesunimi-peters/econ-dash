@@ -1,0 +1,374 @@
+/* ===== Phase 3: Drill-Down Improvements ===== */
+
+/* Detail view with sidebar layout from Phase 1 */
+
+/* ===== Detail Sidebar ===== */
+
+.detail-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.contextual-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.contextual-breadcrumb .breadcrumb-sep {
+    color: var(--text-muted);
+    margin: 0 4px;
+}
+
+.contextual-breadcrumb .breadcrumb-item {
+    cursor: pointer;
+    transition: color 0.15s;
+    padding: 4px 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.contextual-breadcrumb .breadcrumb-item:hover:not(.active) {
+    color: var(--primary);
+}
+
+.contextual-breadcrumb .breadcrumb-item.active {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* ===== Detail Main Content ===== */
+
+.detail-content-area {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sticky-breadcrumb {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ===== Chart Cards ===== */
+
+.chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: all 0.2s;
+    animation: slideInBottom 0.3s ease-out;
+}
+
+.chart-card:hover {
+    border-color: var(--text-muted);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.chart-card h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text);
+}
+
+/* ===== Sparkline Tables ===== */
+
+.indicator-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    animation: slideInBottom 0.3s ease-out;
+}
+
+.indicator-table table {
+    margin: 0;
+    width: 100%;
+}
+
+.indicator-table thead {
+    background: var(--surface-hover);
+    border-bottom: 2px solid var(--border);
+}
+
+.indicator-table th {
+    padding: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    text-align: left;
+}
+
+.indicator-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.indicator-table tbody tr:hover {
+    background: var(--surface-hover);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.indicator-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Value columns */
+.indicator-table td.value {
+    font-weight: 600;
+    color: var(--text);
+    font-family: monospace;
+}
+
+.indicator-table td.yoy {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.indicator-table td.trend {
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+/* ===== Section Titles ===== */
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text);
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+}
+
+/* ===== Anomalies & Causal Factors Sidebar Cards ===== */
+
+.sidebar-anomalies,
+.sidebar-factors,
+.sidebar-context-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-top: 12px;
+    animation: slideInLeft 0.3s ease-out;
+}
+
+.sidebar-anomalies h5,
+.sidebar-factors h5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+}
+
+.sidebar-anomalies ul,
+.sidebar-factors ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-anomalies li,
+.sidebar-factors li {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 4px 0;
+    padding-left: 8px;
+    border-left: 2px solid var(--border);
+}
+
+.sidebar-anomalies li:hover,
+.sidebar-factors li:hover {
+    color: var(--text);
+    border-left-color: var(--primary);
+}
+
+/* ===== Related Items Chips ===== */
+
+.related-items-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.related-item-chip,
+.related-item-badge {
+    cursor: pointer;
+    background: rgba(108, 140, 255, 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(108, 140, 255, 0.3);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.15s;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.related-item-chip:hover,
+.related-item-badge:hover {
+    background: rgba(108, 140, 255, 0.25);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(108, 140, 255, 0.2);
+}
+
+/* ===== Control Buttons ===== */
+
+.detail-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.detail-controls .btn,
+.detail-controls .btn-group {
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+}
+
+.detail-controls .btn-sm {
+    padding: 6px 10px;
+    height: 32px;
+    font-size: 0.8rem;
+}
+
+/* ===== Percentile Gauge ===== */
+
+.percentile-gauge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.percentile-gauge .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.percentile-gauge .label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ===== Responsive Detail View ===== */
+
+@media (max-width: 1024px) {
+    .detail-sidebar {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .chart-card {
+        padding: 12px;
+    }
+
+    .indicator-table th,
+    .indicator-table td {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ===== Mobile Optimization ===== */
+
+@media (max-width: 767px) {
+    .detail-sidebar {
+        margin-bottom: 16px;
+    }
+
+    .contextual-breadcrumb {
+        font-size: 0.75rem;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+    }
+
+    .chart-card {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 8px;
+    }
+
+    .indicator-table {
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    .indicator-table th,
+    .indicator-table td {
+        padding: 6px;
+        font-size: 0.75rem;
+    }
+
+    .detail-controls {
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+
+    .detail-controls .btn {
+        padding: 6px 10px;
+        height: 32px;
+        font-size: 0.75rem;
+        min-width: auto;
+    }
+
+    .related-item-chip {
+        padding: 4px 8px;
+        font-size: 0.7rem;
+    }
+}
+
+/* ===== Print Styles ===== */
+
+@media print {
+    .detail-controls,
+    .sidebar-anomalies,
+    .sidebar-factors {
+        display: none;
+    }
+
+    .chart-card,
+    .indicator-table {
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+        background: white;
+    }
+}
