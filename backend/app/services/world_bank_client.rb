@@ -6,12 +6,28 @@ class WorldBankClient
 
   # World Bank indicator codes for key economic metrics
   INDICATORS = {
+    # Demographics
     population: "SP.POP.TOTL",                    # Total population
     life_expectancy: "SP.DYN.LE00.IN",            # Life expectancy at birth
-    labor_participation: "SP.UWT.TLSS.ZS",        # Unemployed (% of total labor force) - inverse
-    tfp_growth: "NY.EMP.PRIM.CD",                 # Employment in agriculture
+    urban_population_pct: "SP.URB.TOTL.IN.ZS",    # Urban population (% of total)
+
+    # Productivity & Innovation
     rd_pct_gdp: "GB.XPD.RSDV.GD.ZS",              # Research & development expenditure (% of GDP)
-    education_spending_pct_gdp: "SE.XPD.TOTL.GD.ZS" # Government expenditure on education (% of GDP)
+    education_spending_pct_gdp: "SE.XPD.TOTL.GD.ZS", # Government expenditure on education (% of GDP)
+    manufacturing_value_added_pct: "NV.MNF.TOTL.ZS", # Manufacturing (% of GDP)
+    service_sector_pct: "NV.SRV.TOTL.ZS",         # Service sector (% of GDP)
+
+    # Economic Development
+    gdp_per_capita: "NY.GDP.PCAP.CD",             # GDP per capita (constant 2015 USD)
+    gdp_per_capita_growth: "NY.GDP.PCAP.KD.ZG",   # GDP per capita growth (annual %)
+
+    # Labor & Employment (may not have consistent data)
+    labor_participation: "SP.UWT.TLSS.ZS",        # Labor force participation (proxy)
+
+    # Trade & Investment
+    foreign_direct_investment_pct: "BX.KLT.DINV.GD.ZS", # FDI inflows (% of GDP)
+    merchandise_exports_pct_gdp: "NE.EXP.MRCH.GD.ZS", # Merchandise exports (% of GDP)
+    merchandise_imports_pct_gdp: "NE.IMP.MRCH.GD.ZS"  # Merchandise imports (% of GDP)
   }.freeze
 
   # ISO country code mapping
