@@ -1335,6 +1335,46 @@ def _build_factors_compact(factors_data):
 
 # ── Structural Health Panel (Demographics, Debt, Productivity) ─────────────
 
+def _build_mini_sparkline(historical_data):
+    """Create tiny inline sparkline chart for metric card (30px height)."""
+    if not historical_data or len(historical_data) < 2:
+        return None
+
+    try:
+        dates = [d["date"] if isinstance(d["date"], str) else d["date"].isoformat() for d in historical_data]
+        values = [float(d["value"]) for d in historical_data]
+
+        fig = go.Figure(data=[go.Scatter(
+            x=dates,
+            y=values,
+            mode='lines',
+            line=dict(color=COLORS["primary"], width=1.5),
+            fill='tozeroy',
+            fillcolor='rgba(59, 130, 246, 0.1)',
+            hoverinfo='none'
+        )])
+
+        fig.update_layout(
+            margin=dict(l=0, r=0, t=0, b=0),
+            height=30,
+            width=100,
+            showlegend=False,
+            xaxis_visible=False,
+            yaxis_visible=False,
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)',
+            hovermode=False
+        )
+
+        return dcc.Graph(
+            figure=fig,
+            config={"displayModeBar": False, "responsive": True},
+            style={"marginTop": "4px", "marginBottom": "4px", "height": "30px"}
+        )
+    except Exception:
+        return None
+
+
 def build_structural_health(structural_data, debt_data):
     """Long-term structural trends panel: demographics, debt, productivity."""
     if not structural_data or not debt_data:
@@ -1363,7 +1403,7 @@ def build_structural_health(structural_data, debt_data):
         debt_by_category[category].append(metric)
 
     def build_metric_card(metric):
-        """Build a single metric card with alert coloring."""
+        """Build a single metric card with alert coloring, sparkline, and enhanced metadata."""
         label = metric.get("metric_label", "")
         value = metric.get("value", 0)
         unit = metric.get("unit", "")
@@ -1371,6 +1411,10 @@ def build_structural_health(structural_data, debt_data):
         source = metric.get("source", "")
         trend = metric.get("trend")
         trend_interp = metric.get("trend_interpretation")
+        trend_5year = metric.get("trend_5year")
+        historical = metric.get("historical", [])
+        data_source = metric.get("data_source", "Seed Data")
+        last_updated = metric.get("last_updated")
 
         # Alert color
         if alert_level == "critical":
@@ -1397,11 +1441,28 @@ def build_structural_health(structural_data, debt_data):
         except:
             value_display = f"{value} {unit}"
 
-        # Trend display for debt metrics
+        # Trend display for debt metrics or 5-year trend
         trend_display = ""
         if trend:
             trend_arrows = {"up": "↑", "down": "↓", "stable": "→"}
             trend_display = trend_arrows.get(trend, "→")
+        elif trend_5year:
+            trend_arrows = {"up": "↑", "down": "↓", "stable": "→"}
+            trend_display = trend_arrows.get(trend_5year, "→")
+
+        # Build sparkline if historical data available
+        sparkline = _build_mini_sparkline(historical) if historical else None
+
+        # Format last_updated date
+        last_updated_display = ""
+        if last_updated:
+            try:
+                if isinstance(last_updated, str):
+                    last_updated_display = last_updated.split("T")[0]
+                else:
+                    last_updated_display = last_updated.strftime("%Y-%m-%d")
+            except:
+                pass
 
         card_content = [
             # Header with label
@@ -1436,6 +1497,8 @@ def build_structural_health(structural_data, debt_data):
                     "marginBottom": "6px",
                 }
             ),
+            # Sparkline (if available)
+            sparkline if sparkline else html.Div(),
             # Interpretation (for debt metrics)
             html.Div(
                 trend_interp or "",
@@ -1446,15 +1509,24 @@ def build_structural_health(structural_data, debt_data):
                     "minHeight": "20px",
                 }
             ) if trend_interp else html.Div(),
-            # Source
-            html.Div(
-                source,
-                style={
+            # Metadata footer (Last updated + Data source)
+            html.Div([
+                html.Span(f"Updated: {last_updated_display}", style={
                     "fontSize": "0.65rem",
                     "color": COLORS["text_muted"],
-                    "fontStyle": "italic",
-                }
-            ),
+                }) if last_updated_display else html.Span(),
+                html.Span(f"• {data_source}", style={
+                    "fontSize": "0.65rem",
+                    "color": COLORS["text_muted"],
+                    "marginLeft": "4px"
+                })
+            ], style={
+                "display": "flex",
+                "alignItems": "center",
+                "marginTop": "4px",
+                "borderTop": f"1px solid {COLORS['border']}",
+                "paddingTop": "4px"
+            }),
         ]
 
         return html.Div(

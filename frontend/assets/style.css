@@ -755,3 +755,21 @@ p, span, label {
     background: rgba(255, 255, 255, 0.04);
     border-color: var(--primary);
 }
+
+.structural-sparkline {
+    height: 30px;
+    margin: 4px 0;
+}
+
+.structural-trend-indicator {
+    font-size: 1.1rem;
+    margin-left: 6px;
+}
+
+.structural-meta {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+}
