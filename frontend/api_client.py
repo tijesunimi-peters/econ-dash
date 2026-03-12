@@ -100,3 +100,9 @@ def get_country_structural_trends(country_id):
 def get_country_debt_trends(country_id):
     """Fetch debt metrics (government, corporate, household) for a country."""
     return _get(f"/countries/{country_id}/debt_trends")
+
+
+def get_country_structural_forecast(country_id, periods=2, method="linear"):
+    """Fetch forecast projections for structural metrics."""
+    return _get(f"/countries/{country_id}/structural_forecast",
+                params={"periods": periods, "method": method})

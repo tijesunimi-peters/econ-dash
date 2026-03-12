@@ -18,6 +18,7 @@ Rails.application.routes.draw do
           get :market_sentiment
           get :structural_trends
           get :debt_trends
+          get :structural_forecast
           get 'compare/:other_id', action: :compare
         end
         collection do

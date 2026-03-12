@@ -233,6 +233,40 @@ module Api
         }
       end
 
+      def structural_forecast
+        country = Country.find(params[:id])
+        periods = (params[:periods] || 2).to_i
+        method = (params[:method] || "linear").to_sym
+
+        forecasts = country.structural_metrics
+          .group_by(&:metric_type)
+          .map { |metric_type, records|
+            latest = records.first
+            forecast_data = latest.forecast(periods: periods, method: method)
+
+            {
+              metric_type: metric_type,
+              metric_label: latest.metric_label,
+              category: latest.category,
+              current_value: latest.value,
+              current_date: latest.date,
+              forecast: forecast_data[:forecast],
+              trend: forecast_data[:trend],
+              r_squared: forecast_data[:r_squared],
+              confidence_level: forecast_data[:confidence_level],
+              slope: forecast_data[:slope]
+            }
+          }
+
+        render json: {
+          country_id: country.id,
+          country_name: country.name,
+          forecast_periods: periods,
+          forecast_method: method,
+          forecasts: forecasts
+        }
+      end
+
       private
 
       def country_json(country)

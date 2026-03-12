@@ -136,4 +136,19 @@ class StructuralMetric < ApplicationRecord
       .pluck(:date, :value)
       .map { |d, v| { date: d, value: v.to_f } }
   end
+
+  # Generate forecast for future values
+  # Returns forecast data with confidence intervals
+  def forecast(periods: 2, method: :linear)
+    hist_data = historical_data(years: 10)
+
+    case method
+    when :linear
+      TrendForecastService.forecast_linear(hist_data, periods: periods)
+    when :exponential
+      TrendForecastService.forecast_exponential(hist_data, periods: periods)
+    else
+      TrendForecastService.forecast_linear(hist_data, periods: periods)
+    end
+  end
 end

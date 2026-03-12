@@ -1335,24 +1335,51 @@ def _build_factors_compact(factors_data):
 
 # ── Structural Health Panel (Demographics, Debt, Productivity) ─────────────
 
-def _build_mini_sparkline(historical_data):
-    """Create tiny inline sparkline chart for metric card (30px height)."""
+def _build_mini_sparkline(historical_data, forecast_data=None):
+    """Create tiny inline sparkline chart for metric card (30px height).
+
+    Optionally includes forecast as dashed line if forecast_data provided.
+    """
     if not historical_data or len(historical_data) < 2:
         return None
 
     try:
-        dates = [d["date"] if isinstance(d["date"], str) else d["date"].isoformat() for d in historical_data]
-        values = [float(d["value"]) for d in historical_data]
+        hist_dates = [d["date"] if isinstance(d["date"], str) else d["date"].isoformat() for d in historical_data]
+        hist_values = [float(d["value"]) for d in historical_data]
 
-        fig = go.Figure(data=[go.Scatter(
-            x=dates,
-            y=values,
+        # Build traces
+        traces = [go.Scatter(
+            x=hist_dates,
+            y=hist_values,
             mode='lines',
+            name='Historical',
             line=dict(color=COLORS["primary"], width=1.5),
             fill='tozeroy',
             fillcolor='rgba(59, 130, 246, 0.1)',
             hoverinfo='none'
-        )])
+        )]
+
+        # Add forecast if available
+        if forecast_data and len(forecast_data) > 0:
+            # Combine last historical point with forecast for continuity
+            last_hist_date = hist_dates[-1]
+            last_hist_value = hist_values[-1]
+
+            forecast_dates = [last_hist_date] + [f["date"] if isinstance(f["date"], str) else f["date"].isoformat()
+                                                  for f in forecast_data]
+            forecast_values = [last_hist_value] + [float(f["value"]) for f in forecast_data]
+
+            traces.append(go.Scatter(
+                x=forecast_dates,
+                y=forecast_values,
+                mode='lines',
+                name='Forecast',
+                line=dict(color=COLORS["warning"], width=1.5, dash='dash'),
+                hoverinfo='none',
+                opacity=0.7
+            ))
+
+        fig = go.Figure(data=traces)
 
         fig.update_layout(
             margin=dict(l=0, r=0, t=0, b=0),
