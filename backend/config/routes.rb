@@ -14,6 +14,7 @@ Rails.application.routes.draw do
           get :executive_summary
           get :correlations
           get :causal_factors
+          get :policy_timeline
           get 'compare/:other_id', action: :compare
         end
         collection do

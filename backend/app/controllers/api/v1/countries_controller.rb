@@ -113,6 +113,32 @@ module Api
         render json: { phase: phase, countries: countries_in_phase, count: countries_in_phase.length }
       end
 
+      def policy_timeline
+        country = Country.find(params[:id])
+        decisions = country.policy_decisions.order(announcement_date: :desc).limit(20)
+
+        render json: {
+          country_id: country.id,
+          country_name: country.name,
+          policies: decisions.map { |d|
+            {
+              id: d.id,
+              type: d.decision_type,
+              type_label: d.decision_type_label,
+              announcement_date: d.announcement_date,
+              effective_date: d.effective_date,
+              description: d.description,
+              impact_sectors: d.impact_sectors,
+              expected_lag_months: d.expected_lag_months,
+              expected_impact_date: d.expected_impact_date,
+              status: d.status,
+              active: d.active?,
+              source: d.source
+            }
+          }
+        }
+      end
+
       private
 
       def country_json(country)
