@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-03-12 — Causal Factors Feature
+
+### Added
+- **Causal Factors** — Explain *why* economic trends are happening through external and structural dependencies
+  - Backend service `CausalFactorService` with rolling 12-month Pearson correlation analysis
+  - Config-driven factor definitions in `backend/config/causal_factors.yml`
+    - 13 factors across 5 countries (US, CA, JP, AU, DE)
+    - Examples: Oil price dependencies, China export concentration, FX linkages, trade policies
+  - New API endpoint: `GET /api/v1/countries/:id/causal_factors` (1-hour cache)
+  - Factors computed with:
+    - Proxy series correlation with affected sectors
+    - Trend detection (rising/falling/stable)
+    - Confidence scoring (correlation × proxy activity)
+    - Automatic ranking by confidence
+  - Frontend integration:
+    - New `_build_factors_compact()` component for rendering factor chips
+    - Color-coded by confidence (green≥0.7, yellow≥0.5, red<0.5)
+    - Status emojis (📈 rising, 📉 falling, ➡️ stable)
+    - Correlation scores and affected sector tags
+    - Integrated into Intelligence Panel (after narrative bullets)
+  - Graceful error handling for missing/insufficient data
+
+### Fixed
+- Updated `.env` for correct Docker PostgreSQL connection string
+
 ## 2026-03-11 — Initial Setup
 
 ### Added

@@ -2,12 +2,13 @@
 
 ## Goal
 
-A dual-country (US & Canada) economic monitoring dashboard that provides a hierarchical view of economic health across sectors and industries. The dashboard enables users to:
+A multi-country (US, Canada, Japan, Australia, Germany) economic monitoring dashboard that provides a hierarchical view of economic health across sectors and industries. The dashboard enables users to:
 
 1. **See sector-level trends at a glance** — quickly identify which sectors of the economy are expanding or contracting
 2. **Drill down into sub-industries** — understand what's driving a sector's performance by examining its constituent industries
 3. **Analyze contributing indicators** — view the underlying time-series data (GDP, employment, production, prices) that explain sub-industry trends
-4. **Compare US and Canada side-by-side** — monitor both economies with consistent sector categorization
+4. **Understand causal factors** — discover external and structural dependencies driving trends (e.g., oil prices, currency movements, trade concentration)
+5. **Compare countries side-by-side** — monitor multiple economies with consistent sector categorization
 
 ## Architecture
 
