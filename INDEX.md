@@ -8,6 +8,9 @@
 
 ## Quick Navigation
 
+### 🎯 **New? Start Here**
+- **[DOCUMENTATION_GUIDE.md](DOCUMENTATION_GUIDE.md)** — How to navigate all docs (read this first!)
+
 ### 🚀 Getting Started
 - **[PROJECT.md](PROJECT.md)** — Overview, goals, architecture, running instructions
 - **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** — Setup, common tasks, debugging
