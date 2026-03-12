@@ -603,23 +603,31 @@ def _build_cycle_clock_compact(cycle_data):
         showlegend=False,
     )
 
+    # Build label with trigger (only include trigger if it exists)
+    label_children = [
+        html.Span(current_phase.title(),
+                  style={"color": phase_color, "fontSize": "1.5rem",
+                         "fontWeight": "700"}),
+    ]
+    if trigger_phase:
+        label_children.append(trigger_phase)
+
+    # Build popovers list (only include if they exist)
+    popovers = [p for p in [pop_phase, pop_x, pop_y] if p]
+
     return html.Div([
         dcc.Graph(figure=fig, config={"displayModeBar": False},
                   style={"height": "420px", "width": "100%"}),
         html.Div([
-            html.Div([
-                html.Span(current_phase.title(),
-                          style={"color": phase_color, "fontSize": "1.5rem",
-                                 "fontWeight": "700"}),
-                trigger_phase if trigger_phase else html.Div(),
-            ], style={"display": "flex", "alignItems": "center", "justifyContent": "center"}),
+            html.Div(
+                label_children,
+                style={"display": "flex", "alignItems": "center", "justifyContent": "center"}
+            ),
             html.Span(f" \u00b7 {duration}mo",
                       style={"color": COLORS["text_secondary"], "fontSize": "1rem",
                              "marginLeft": "8px"}),
         ], style={"textAlign": "center", "marginTop": "-12px"}),
-        pop_phase if pop_phase else html.Div(),
-        pop_x if pop_x else html.Div(),
-        pop_y if pop_y else html.Div(),
+        *popovers,  # Unpack only non-None popovers
     ], style={"width": "100%"})
 
 
