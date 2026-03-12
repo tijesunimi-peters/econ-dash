@@ -311,13 +311,13 @@ def register_callbacks(app):
 
         policies_data = api_client.get_country_policies(country_id)
         if isinstance(policies_data, dict) and "error" in policies_data:
-            return html.Div()
+            return dbc.Alert(f"Error fetching policies: {policies_data['error']}", color="danger")
         if not isinstance(policies_data, dict):
-            return html.Div()
+            return dbc.Alert(f"Invalid response type: {type(policies_data)}", color="warning")
 
         policies = policies_data.get("policies", [])
         if not policies:
-            return html.Div()
+            return dbc.Alert("No policies available", color="info")
 
         return build_policy_timeline(policies)
 

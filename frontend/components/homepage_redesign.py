@@ -131,7 +131,7 @@ def build_redesigned_homepage(
                 title="Policy Timeline",
                 children=policy_container,
                 panel_id="policy-panel",
-                default_open=False,  # Collapsed by default
+                default_open=True,  # Expanded by default to show policy data
                 icon="📅",
             ),
         ], layout="adaptive"),
