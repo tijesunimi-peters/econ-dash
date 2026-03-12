@@ -32,6 +32,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_070424) do
     t.index ["indicator_id"], name: "index_data_points_on_indicator_id"
   end
 
+  create_table "debt_data_points", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.bigint "debt_metric_id", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "value", precision: 15, scale: 4, null: false
+    t.index ["date"], name: "index_debt_data_points_on_date"
+    t.index ["debt_metric_id", "date"], name: "index_debt_data_points_on_debt_metric_id_and_date", unique: true
+    t.index ["debt_metric_id"], name: "index_debt_data_points_on_debt_metric_id"
+  end
+
   create_table "debt_metrics", force: :cascade do |t|
     t.bigint "country_id", null: false
     t.datetime "created_at", null: false
@@ -141,6 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_070424) do
   end
 
   add_foreign_key "data_points", "indicators"
+  add_foreign_key "debt_data_points", "debt_metrics"
   add_foreign_key "debt_metrics", "countries"
   add_foreign_key "indicators", "sub_industries"
   add_foreign_key "market_sentiments", "countries"

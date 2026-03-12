@@ -217,7 +217,11 @@ module Api
             trend: latest.trend,
             alert_level: latest.alert_level,
             trend_interpretation: latest.trend_interpretation,
-            source: latest.source
+            source: latest.source,
+            data_source: latest.source == "world_bank" ? "World Bank" : "Seed Data",
+            last_updated: latest.updated_at,
+            trend_5year: latest.trend_5year,
+            historical: latest.historical_data(years: 5)
           }
         }
 

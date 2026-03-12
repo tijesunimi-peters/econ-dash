@@ -1,5 +1,6 @@
 class DebtMetric < ApplicationRecord
   belongs_to :country
+  has_many :data_points, class_name: 'DebtDataPoint', dependent: :destroy
 
   METRIC_TYPES = {
     'govt_debt_pct_gdp' => { label: 'Government Debt', unit: '% of GDP', category: 'government' },
@@ -59,5 +60,36 @@ class DebtMetric < ApplicationRecord
     else
       nil
     end
+  end
+
+  # Calculate trend from historical data (last 5 years)
+  def trend_5year
+    historical = data_points
+      .order(date: :asc)
+      .last(5)
+
+    return nil if historical.length < 2
+
+    first_val = historical.first.value.to_f
+    last_val = historical.last.value.to_f
+    pct_change = ((last_val - first_val) / first_val * 100) rescue nil
+
+    return nil if pct_change.nil?
+
+    case pct_change
+    when (-Float::INFINITY)..-1.0 then "down"
+    when 1.0..Float::INFINITY then "up"
+    else "stable"
+    end
+  end
+
+  # Get historical data for sparklines (last N years)
+  def historical_data(years: 5)
+    cutoff_date = date - years.years
+    data_points
+      .where("date >= ?", cutoff_date)
+      .order(date: :asc)
+      .pluck(:date, :value)
+      .map { |d, v| { date: d, value: v.to_f } }
   end
 end

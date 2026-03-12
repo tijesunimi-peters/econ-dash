@@ -30,6 +30,11 @@ class WorldBankClient
     merchandise_imports_pct_gdp: "NE.IMP.MRCH.GD.ZS"  # Merchandise imports (% of GDP)
   }.freeze
 
+  # Debt indicators (separate namespace)
+  DEBT_INDICATORS = {
+    govt_debt_pct_gdp: "GC.DOD.TOTL.GD.ZS"        # Government debt (% of GDP)
+  }.freeze
+
   # ISO country code mapping
   COUNTRY_CODES = {
     "US" => "USA",
