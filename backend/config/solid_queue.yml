@@ -1,0 +1,21 @@
+---
+default: &default
+  processes:
+    - kind: worker
+      concurrency: 5
+    - kind: scheduler
+      batch_size: 100
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
+  processes:
+    - kind: worker
+      concurrency: 10
+    - kind: scheduler
+      batch_size: 500

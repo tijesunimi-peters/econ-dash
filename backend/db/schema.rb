@@ -22,6 +22,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_070424) do
     t.index ["code"], name: "index_countries_on_code"
   end
 
+  create_table "data_ingest_logs", force: :cascade do |t|
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.string "data_type", null: false
+    t.text "error_message"
+    t.integer "records_processed"
+    t.string "status", null: false
+    t.datetime "updated_at", null: false
+    t.index ["data_type", "completed_at"], name: "index_data_ingest_logs_on_data_type_and_completed_at"
+    t.index ["status"], name: "index_data_ingest_logs_on_status"
+  end
+
   create_table "data_points", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "date"
