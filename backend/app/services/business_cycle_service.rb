@@ -25,6 +25,9 @@ class BusinessCycleService
     current_phase = detect_phase(composite_index)
     phase_duration = compute_phase_duration(composite_index)
 
+    # Compute cycle position (for more accurate quadrant placement)
+    cycle_position = compute_cycle_position(composite_index)
+
     # Sector recommendations based on current phase
     recommended_sectors = sector_cycle_map[current_phase] || []
 
@@ -46,6 +49,7 @@ class BusinessCycleService
       composite_index: composite_index.last(60).map { |ci| { date: ci[:date], value: ci[:value].round(2) } },
       current_phase: current_phase,
       phase_duration_months: phase_duration,
+      cycle_position: cycle_position,
       sector_recommendations: recommended_sectors,
       leading_indicators_summary: leading_summary,
     }
@@ -164,11 +168,77 @@ class BusinessCycleService
     Math.sqrt(variance)
   end
 
+  def compute_cycle_position(composite_index)
+    return {} if composite_index.size < MOVING_AVG_WINDOW + 2
+
+    values = composite_index.map { |ci| ci[:value] }
+    current = values.last
+    previous = values[-2]
+    ma = values.last(MOVING_AVG_WINDOW).sum / MOVING_AVG_WINDOW
+
+    # Compute momentum (acceleration/deceleration)
+    # Compare 3-month and 6-month rates of change
+    momentum_3m = values[-1] - values[-4]
+    momentum_6m = values[-1] - values[-7]
+    acceleration = momentum_3m - momentum_6m  # Positive = accelerating
+
+    # Compute rate of change (velocity)
+    roc_1m = ((current - previous) / previous.abs) * 100
+    roc_3m = ((values[-1] - values[-4]) / values[-4].abs) * 100
+    roc_6m = ((values[-1] - values[-7]) / values[-7].abs) * 100
+
+    # Determine position within cycle quadrant (0-1 scale)
+    # X-axis: movement relative to trend (0=below trend, 1=above trend)
+    x_position = (current - ma) / (values.max - ma).abs if (values.max - ma) != 0
+    x_position = x_position.clamp(0, 1) if x_position
+
+    # Y-axis: momentum (0=strong decline, 1=strong growth)
+    momentum_range = acceleration
+    y_position = if momentum_range != 0
+                  if momentum_range > 0
+                    [momentum_range / momentum_range.abs * 0.5 + 0.5, 1.0].min  # 0.5-1.0 for positive
+                  else
+                    [momentum_range / momentum_range.abs * 0.5 + 0.5, 0.0].max  # 0.0-0.5 for negative
+                  end
+                else
+                  0.5  # Zero momentum = neutral position
+                end
+
+    # Quadrant assignment with position
+    phase = detect_phase(composite_index)
+    quadrant = case phase
+               when "expansion"
+                 { quadrant: "expansion", label: "Expansion" }
+               when "peak"
+                 { quadrant: "peak", label: "Peak" }
+               when "contraction"
+                 { quadrant: "contraction", label: "Contraction" }
+               when "trough"
+                 { quadrant: "trough", label: "Trough" }
+               else
+                 { quadrant: "unknown", label: "Unknown" }
+               end
+
+    {
+      phase: phase,
+      quadrant: quadrant[:quadrant],
+      quadrant_label: quadrant[:label],
+      x_position: (x_position || 0.5).round(3),  # 0=at/below trend, 1=well above trend
+      y_position: y_position.round(3),            # 0=declining momentum, 1=accelerating momentum
+      momentum: acceleration.round(3),            # Positive = accelerating, negative = decelerating
+      roc_1m: roc_1m.round(2),                    # 1-month rate of change
+      roc_3m: roc_3m.round(2),                    # 3-month rate of change
+      roc_6m: roc_6m.round(2),                    # 6-month rate of change
+      current_vs_ma: ((current - ma) / ma * 100).round(2),  # % above/below 12-mo MA
+    }
+  end
+
   def empty_result
     {
       composite_index: [],
       current_phase: "insufficient_data",
       phase_duration_months: 0,
+      cycle_position: {},
       sector_recommendations: [],
       leading_indicators_summary: [],
     }
