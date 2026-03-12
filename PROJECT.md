@@ -39,7 +39,58 @@ Country (US, Canada)
 
 ```bash
 cd /home/admin/econ-dashboard
-docker compose up --build
-docker exec econ-dashboard-backend bin/rails db:create db:migrate db:seed
-docker exec econ-dashboard-backend bin/rails data:ingest
+docker compose up -d
+docker compose exec backend bin/rails db:create db:migrate db:seed
+docker compose exec backend bin/rails data:ingest
 ```
+
+**Access dashboard at:** http://localhost:8050
+
+## Documentation
+
+- **[STATUS.md](STATUS.md)** — Current project status, completed features, architecture overview, testing checklist
+- **[API_ENDPOINTS.md](API_ENDPOINTS.md)** — Full REST API reference with examples, parameters, caching policies
+- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** — Development workflow, common tasks, debugging, troubleshooting
+- **[CHANGELOG.md](CHANGELOG.md)** — Version history and feature releases
+- **[PLAN-CAUSAL-FACTORS.md](PLAN-CAUSAL-FACTORS.md)** — Design document for causal factors feature
+- **[PLAN-COUNTRIES.md](PLAN-COUNTRIES.md)** — Design document for adding Japan, Australia, Germany
+
+## Features Implemented
+
+### ✅ Multi-Country Support
+- 5 countries: US, CA, JP, AU, DE
+- Consistent sector taxonomy across countries
+- 8,883+ economic data points from FRED API
+
+### ✅ Business Cycle Analysis
+- Composite leading index with 12-month moving average
+- 4-phase detection: expansion, peak, contraction, trough
+- 2D cycle positioning with momentum scoring
+- Sector recommendations per phase
+
+### ✅ Anomaly Detection
+- Statistical detection (>1.5 std dev from 3-year mean)
+- Visual flagging in dashboard
+
+### ✅ Causal Factors
+- 13 factors across 5 countries
+- Rolling 12-month Pearson correlation analysis
+- Proxy series trend detection
+- Confidence scoring and ranking
+
+### ✅ Cross-Country Analysis
+- Side-by-side comparison charts
+- Sector correlation heatmap (rolling 12-month)
+- Cycle phase filtering endpoint
+
+### ✅ Advanced Analytics
+- Momentum scoreboard with rate-of-change metrics
+- Executive summaries with trend narratives
+- Percentile analysis
+- Acceleration detection
+
+### ✅ Interactive Dashboard
+- Country selector dropdown
+- Drill-down from sector → sub-industry → indicator
+- Time-series charts with Plotly
+- Multiple tabs: Sectors, Momentum, Compare, Intelligence
