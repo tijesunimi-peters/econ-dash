@@ -92,22 +92,14 @@ def build_redesigned_homepage(
                 dbc.Col([
                     html.H1("Economic Health Dashboard", className="mt-3 mb-0"),
                     html.P("Global Economic Sector Trends and Drill-Down", className="text-muted"),
-                ], width=True),
+                ], lg=8),
                 dbc.Col([
-                    dbc.Row([
-                        dbc.Col(
-                            country_dropdown,
-                            width=6,
-                            className="d-flex align-items-center",
-                        ),
-                        dbc.Col(
-                            _build_preset_selector(),
-                            width=6,
-                            className="d-flex align-items-center",
-                        ),
-                    ], align="center"),
-                ], width=4),
-            ], align="center"),
+                    html.Div([
+                        country_dropdown,
+                        _build_preset_selector(),
+                    ], className="header-controls"),
+                ], lg=4, className="d-flex align-items-center justify-content-end"),
+            ], align="center", className="w-100"),
         ], className="dashboard-header"),
 
         # ── Storage store for localStorage persistence (Phase 5) ──
