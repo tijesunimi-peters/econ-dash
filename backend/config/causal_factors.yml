@@ -1,0 +1,114 @@
+jp:
+  sectors:
+    Energy:
+      factors:
+        - id: jp_oil_wti
+          name: "Global Oil Price Exposure"
+          description: "Japan imports most of its oil; WTI is a key global price indicator"
+          type: external_dependency
+          proxy_series_id: DCOILWTICO
+          sensitivity: high
+          affected_sectors: ["Energy", "Manufacturing", "Inflation"]
+          lag_months: 1
+    Trade:
+      factors:
+        - id: jp_exports
+          name: "Export Activity"
+          description: "Japan's largest trading partner; exports drive economic growth"
+          type: export_concentration
+          proxy_series_id: XTEXVA01JPM667S
+          sensitivity: high
+          affected_sectors: ["Manufacturing", "Trade", "Consumer"]
+
+au:
+  sectors:
+    Trade:
+      factors:
+        - id: au_export_activity
+          name: "Export Growth"
+          description: "Australia's exports are crucial to economic performance"
+          type: export_concentration
+          proxy_series_id: XTEXVA01AUM667S
+          sensitivity: high
+          affected_sectors: ["Trade", "Energy", "Manufacturing"]
+    Energy:
+      factors:
+        - id: au_lng_gas_export
+          name: "Natural Gas Prices"
+          description: "LNG exports are a major revenue source for Australia"
+          type: commodity_export
+          proxy_series_id: DHHNGSP
+          sensitivity: medium
+          affected_sectors: ["Energy", "Trade"]
+
+de:
+  sectors:
+    Energy:
+      factors:
+        - id: de_oil_import
+          name: "Global Oil Price"
+          description: "Germany imports significant energy; global oil prices impact costs"
+          type: external_dependency
+          proxy_series_id: DCOILWTICO
+          sensitivity: high
+          affected_sectors: ["Energy", "Manufacturing", "Inflation"]
+    Manufacturing:
+      factors:
+        - id: de_export_activity
+          name: "Manufacturing Exports"
+          description: "Germany relies heavily on industrial exports"
+          type: export_concentration
+          proxy_series_id: XTEXVA01DEM667S
+          sensitivity: high
+          affected_sectors: ["Manufacturing", "Financial"]
+    Consumer:
+      factors:
+        - id: de_gas_price
+          name: "Natural Gas Prices"
+          description: "Energy costs impact consumer prices and manufacturing"
+          type: financial_linkage
+          proxy_series_id: DHHNGSP
+          sensitivity: medium
+          affected_sectors: ["Consumer", "Manufacturing"]
+
+us:
+  sectors:
+    Energy:
+      factors:
+        - id: us_oil_wti
+          name: "WTI Crude Oil"
+          description: "Domestic energy production and consumption"
+          type: commodity_price
+          proxy_series_id: DCOILWTICO
+          sensitivity: high
+          affected_sectors: ["Energy", "Inflation", "Consumer"]
+    Manufacturing:
+      factors:
+        - id: us_industrial_production
+          name: "Industrial Production Index"
+          description: "Tracks US manufacturing and industrial capacity"
+          type: trade_policy
+          proxy_series_id: INDPRO
+          sensitivity: high
+          affected_sectors: ["Manufacturing", "Consumer", "Financial"]
+
+ca:
+  sectors:
+    Energy:
+      factors:
+        - id: ca_oil_price
+          name: "WTI Crude Oil"
+          description: "Canada's oil sector is tied to global oil prices"
+          type: financial_linkage
+          proxy_series_id: DCOILWTICO
+          sensitivity: high
+          affected_sectors: ["Energy", "Trade"]
+    Manufacturing:
+      factors:
+        - id: ca_us_industrial
+          name: "US Industrial Production"
+          description: "~75% of Canadian exports go to the US; industrial production drives demand"
+          type: export_concentration
+          proxy_series_id: INDPRO
+          sensitivity: high
+          affected_sectors: ["Trade", "Manufacturing", "Consumer"]
