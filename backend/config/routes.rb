@@ -13,6 +13,7 @@ Rails.application.routes.draw do
           get :business_cycle
           get :executive_summary
           get :correlations
+          get :causal_factors
           get 'compare/:other_id', action: :compare
         end
       end

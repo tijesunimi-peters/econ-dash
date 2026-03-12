@@ -78,6 +78,14 @@ module Api
         render json: data
       end
 
+      def causal_factors
+        country = Country.find(params[:id])
+        data = Rails.cache.fetch("country_causal_factors/#{country.id}", expires_in: 1.hour) do
+          CausalFactorService.new(country).call
+        end
+        render json: data
+      end
+
       private
 
       def country_json(country)
