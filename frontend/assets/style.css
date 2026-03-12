@@ -510,3 +510,49 @@ p, span, label {
     border-bottom-color: var(--primary) !important;
     background: transparent !important;
 }
+
+/* ===== Causal Factors ===== */
+
+.factors-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.factors-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.factor-chip {
+    padding: 8px 10px;
+    border-radius: 4px;
+    min-width: 120px;
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+}
+
+.factor-name {
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.factor-correlation {
+    font-family: monospace;
+    font-weight: 600;
+    font-size: 0.65rem;
+}
+
+.factor-sectors {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    gap: 4px;
+}
