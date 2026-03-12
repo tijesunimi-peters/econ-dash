@@ -16,6 +16,9 @@ Rails.application.routes.draw do
           get :causal_factors
           get 'compare/:other_id', action: :compare
         end
+        collection do
+          get 'by_cycle_phase/:phase', action: :by_cycle_phase
+        end
       end
       resources :sectors, only: [:show] do
         resources :sub_industries, only: [:index], shallow: true

@@ -86,6 +86,33 @@ module Api
         render json: data
       end
 
+      def by_cycle_phase
+        phase = params[:phase]&.downcase
+        valid_phases = ["expansion", "peak", "contraction", "trough"]
+
+        return render json: { error: "Invalid phase. Valid phases: #{valid_phases.join(', ')}" }, status: :bad_request unless valid_phases.include?(phase)
+
+        countries_in_phase = Country.all.map do |country|
+          cycle_data = Rails.cache.fetch("country_business_cycle/#{country.id}", expires_in: 1.hour) do
+            BusinessCycleService.new(country).call
+          end
+
+          if cycle_data[:current_phase] == phase
+            {
+              id: country.id,
+              name: country.name,
+              code: country.code,
+              phase: cycle_data[:current_phase],
+              duration_months: cycle_data[:phase_duration_months],
+              cycle_position: cycle_data[:cycle_position],
+              sector_recommendations: cycle_data[:sector_recommendations]
+            }
+          end
+        end.compact
+
+        render json: { phase: phase, countries: countries_in_phase, count: countries_in_phase.length }
+      end
+
       private
 
       def country_json(country)
