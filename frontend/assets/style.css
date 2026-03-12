@@ -511,6 +511,39 @@ p, span, label {
     background: transparent !important;
 }
 
+/* ===== Policy Timeline ===== */
+
+.policy-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.policy-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.policy-timeline-item {
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 3px solid var(--primary);
+    padding: 12px;
+    border-radius: 4px;
+    transition: all 0.15s;
+}
+
+.policy-timeline-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-left-color: var(--primary-hover);
+}
+
+.policy-timeline-item:last-child {
+    margin-bottom: 0;
+}
+
 /* ===== Causal Factors ===== */
 
 .factors-label {

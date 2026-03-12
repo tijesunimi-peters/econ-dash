@@ -29,6 +29,9 @@ def build_layout():
         # ── Intelligence Panel: cycle clock + traffic lights + narrative ──
         html.Div(id="intelligence-panel-container"),
 
+        # ── Policy Timeline Panel ──
+        html.Div(id="policy-panel-container"),
+
         # ── Breadcrumb + Controls bar (combined row) ──
         html.Div([
             dbc.Row([

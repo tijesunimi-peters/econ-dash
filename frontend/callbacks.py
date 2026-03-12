@@ -16,6 +16,7 @@ from components import (
     build_momentum_scoreboard,
     build_cross_country_comparison,
     build_correlation_heatmap,
+    build_policy_timeline,
     _build_factors_compact,
 )
 
@@ -215,6 +216,30 @@ def register_callbacks(app):
             factors_list = factors_data.get("factors") if isinstance(factors_data, dict) else None
 
         return build_intelligence_panel(cycle_data, summary_data, factors_list)
+
+    # ── Policy Timeline Panel ──
+    # Visible at sectors and sub_industries levels; hidden at indicator level
+    @app.callback(
+        Output("policy-panel-container", "children"),
+        Input("nav-state", "data"),
+    )
+    def update_policy_panel(nav):
+        country_id = nav.get("country_id")
+        level = nav.get("level", "overview")
+        if not country_id or level == "indicators":
+            return html.Div()
+
+        policies_data = api_client.get_country_policies(country_id)
+        if isinstance(policies_data, dict) and "error" in policies_data:
+            return html.Div()
+        if not isinstance(policies_data, dict):
+            return html.Div()
+
+        policies = policies_data.get("policies", [])
+        if not policies:
+            return html.Div()
+
+        return build_policy_timeline(policies)
 
     # ── Anomaly Alerts ──
     # Visible at sectors and sub_industries; hidden at indicator drill-down

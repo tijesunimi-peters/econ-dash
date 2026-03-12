@@ -906,6 +906,149 @@ def build_correlation_heatmap(corr_data):
     return html.Div(content, className="chart-card")
 
 
+# ── Policy Timeline Panel ─────────────────────────────────────────
+
+def build_policy_timeline(policies):
+    """Timeline of central bank and government policy decisions."""
+    if not policies:
+        return html.Div()
+
+    items = []
+    for policy in policies:
+        # Status color mapping
+        status_colors = {
+            "announced": COLORS["warning"],
+            "effective": COLORS["primary"],
+            "completed": COLORS["positive"],
+            "reversed": COLORS["negative"]
+        }
+        status_color = status_colors.get(policy.get("status"), COLORS["neutral"])
+
+        # Format dates
+        announcement = policy.get("announcement_date", "")
+        effective = policy.get("effective_date", "")
+
+        # Build sector badges
+        sectors = policy.get("impact_sectors", [])
+        sector_badges = []
+        for sector in sectors[:3]:  # Show max 3 sectors
+            sector_badges.append(
+                dbc.Badge(
+                    sector,
+                    color="secondary",
+                    pill=True,
+                    className="me-1 mb-1",
+                    style={"fontSize": "0.65rem", "padding": "4px 8px"}
+                )
+            )
+        if len(sectors) > 3:
+            sector_badges.append(
+                dbc.Badge(
+                    f"+{len(sectors)-3}",
+                    color="secondary",
+                    pill=True,
+                    className="me-1 mb-1",
+                    style={"fontSize": "0.65rem", "padding": "4px 8px"}
+                )
+            )
+
+        # Build policy item
+        item = html.Div([
+            # Top row: date, type, status
+            html.Div([
+                html.Span(
+                    announcement,
+                    style={
+                        "fontFamily": "monospace",
+                        "fontSize": "0.8rem",
+                        "color": COLORS["text_muted"],
+                        "minWidth": "90px"
+                    }
+                ),
+                html.Span(
+                    policy.get("type_label", "").upper(),
+                    style={
+                        "fontWeight": "600",
+                        "fontSize": "0.8rem",
+                        "marginLeft": "12px",
+                        "color": COLORS["text"]
+                    }
+                ),
+                dbc.Badge(
+                    policy.get("status", "").upper(),
+                    color=status_colors.get(policy.get("status"), "secondary"),
+                    className="ms-auto",
+                    style={"fontSize": "0.65rem"}
+                ),
+            ], style={
+                "display": "flex",
+                "alignItems": "center",
+                "marginBottom": "6px",
+                "justifyContent": "space-between"
+            }),
+
+            # Description
+            html.Div(
+                policy.get("description", ""),
+                style={
+                    "color": COLORS["text"],
+                    "fontSize": "0.9rem",
+                    "marginBottom": "6px",
+                    "lineHeight": "1.3"
+                }
+            ),
+
+            # Impact sectors
+            html.Div(
+                sector_badges,
+                style={"marginBottom": "6px", "display": "flex", "flexWrap": "wrap"}
+            ) if sector_badges else html.Div(),
+
+            # Footer: effective date, lag, source
+            html.Div([
+                html.Span(
+                    f"Effective: {effective}",
+                    style={
+                        "fontSize": "0.75rem",
+                        "color": COLORS["text_muted"],
+                        "marginRight": "12px"
+                    }
+                ),
+                html.Span(
+                    f"Lag: {policy.get('expected_lag_months', 0)}mo",
+                    style={
+                        "fontSize": "0.75rem",
+                        "color": COLORS["text_muted"],
+                        "marginRight": "12px"
+                    }
+                ),
+                html.Span(
+                    f"({policy.get('source', '')})",
+                    style={
+                        "fontSize": "0.7rem",
+                        "color": COLORS["text_muted"],
+                        "fontStyle": "italic"
+                    }
+                ),
+            ], style={"display": "flex", "alignItems": "center"}),
+        ], className="policy-timeline-item")
+
+        items.append(item)
+
+    return html.Div([
+        html.H4("Policy Timeline", className="section-title", style={"fontSize": "1rem"}),
+        html.Div(
+            items,
+            className="policy-timeline",
+            style={
+                "maxHeight": "400px",
+                "overflowY": "auto",
+                "paddingRight": "8px"
+            }
+        ),
+    ], className="policy-panel")
+
+
 # ── Causal Factors Panel ──────────────────────────────────────────
 
 def _build_factors_compact(factors_data):

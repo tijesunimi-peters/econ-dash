@@ -80,3 +80,8 @@ def get_country_compare(country_id, other_id):
 
 def get_country_causal_factors(country_id):
     return _get(f"/countries/{country_id}/causal_factors")
+
+
+def get_country_policies(country_id):
+    """Fetch policy timeline for a country."""
+    return _get(f"/countries/{country_id}/policy_timeline")
