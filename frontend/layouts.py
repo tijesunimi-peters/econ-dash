@@ -29,9 +29,10 @@ def build_layout():
         # ── Intelligence Panel: cycle clock + traffic lights + narrative ──
         html.Div(id="intelligence-panel-container"),
 
-        # ── Strategic Context: Policy + Market Sentiment ──
+        # ── Strategic Context: Policy + Market Sentiment + Structural Health ──
         html.Div(id="policy-panel-container"),
         html.Div(id="sentiment-panel-container"),
+        html.Div(id="structural-panel-container"),
 
         # ── Breadcrumb + Controls bar (combined row) ──
         html.Div([

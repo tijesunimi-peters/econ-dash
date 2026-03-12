@@ -90,3 +90,13 @@ def get_country_policies(country_id):
 def get_country_market_sentiment(country_id):
     """Fetch market sentiment indicators for a country."""
     return _get(f"/countries/{country_id}/market_sentiment")
+
+
+def get_country_structural_trends(country_id):
+    """Fetch structural metrics (demographics, productivity) for a country."""
+    return _get(f"/countries/{country_id}/structural_trends")
+
+
+def get_country_debt_trends(country_id):
+    """Fetch debt metrics (government, corporate, household) for a country."""
+    return _get(f"/countries/{country_id}/debt_trends")

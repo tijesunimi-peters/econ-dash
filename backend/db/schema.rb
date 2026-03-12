@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_054540) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_12_070001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_054540) do
     t.decimal "value"
     t.index ["indicator_id", "date"], name: "index_data_points_on_indicator_id_and_date", unique: true
     t.index ["indicator_id"], name: "index_data_points_on_indicator_id"
+  end
+
+  create_table "debt_metrics", force: :cascade do |t|
+    t.bigint "country_id", null: false
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.string "metric_type", null: false
+    t.string "source"
+    t.string "trend"
+    t.string "unit", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "value", precision: 10, scale: 2, null: false
+    t.index ["country_id", "date"], name: "index_debt_metrics_on_country_id_and_date"
+    t.index ["country_id", "metric_type", "date"], name: "index_debt_metrics_on_country_id_and_metric_type_and_date"
+    t.index ["country_id"], name: "index_debt_metrics_on_country_id"
+    t.index ["metric_type"], name: "index_debt_metrics_on_metric_type"
   end
 
   create_table "indicators", force: :cascade do |t|
@@ -89,6 +105,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_054540) do
     t.index ["country_id"], name: "index_sectors_on_country_id"
   end
 
+  create_table "structural_metrics", force: :cascade do |t|
+    t.bigint "country_id", null: false
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.string "metric_type", null: false
+    t.string "source"
+    t.string "unit", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "value", precision: 10, scale: 2, null: false
+    t.index ["country_id", "date"], name: "index_structural_metrics_on_country_id_and_date"
+    t.index ["country_id", "metric_type", "date"], name: "idx_on_country_id_metric_type_date_f7ea11107f"
+    t.index ["country_id"], name: "index_structural_metrics_on_country_id"
+    t.index ["metric_type"], name: "index_structural_metrics_on_metric_type"
+  end
+
   create_table "sub_industries", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
@@ -99,9 +130,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_054540) do
   end
 
   add_foreign_key "data_points", "indicators"
+  add_foreign_key "debt_metrics", "countries"
   add_foreign_key "indicators", "sub_industries"
   add_foreign_key "market_sentiments", "countries"
   add_foreign_key "policy_decisions", "countries"
   add_foreign_key "sectors", "countries"
+  add_foreign_key "structural_metrics", "countries"
   add_foreign_key "sub_industries", "sectors"
 end

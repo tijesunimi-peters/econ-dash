@@ -1331,3 +1331,224 @@ def _build_factors_compact(factors_data):
             pop_confidence if pop_confidence else html.Div(),
         ]
     )
+
+
+# ── Structural Health Panel (Demographics, Debt, Productivity) ─────────────
+
+def build_structural_health(structural_data, debt_data):
+    """Long-term structural trends panel: demographics, debt, productivity."""
+    if not structural_data or not debt_data:
+        return html.Div()
+
+    structural_metrics = structural_data.get("structural_metrics", [])
+    debt_metrics = debt_data.get("debt_metrics", [])
+
+    if not structural_metrics or not debt_metrics:
+        return html.Div()
+
+    # Group structural metrics by category
+    structural_by_category = {}
+    for metric in structural_metrics:
+        category = metric.get("category", "other")
+        if category not in structural_by_category:
+            structural_by_category[category] = []
+        structural_by_category[category].append(metric)
+
+    # Group debt metrics by category
+    debt_by_category = {}
+    for metric in debt_metrics:
+        category = metric.get("category", "other")
+        if category not in debt_by_category:
+            debt_by_category[category] = []
+        debt_by_category[category].append(metric)
+
+    def build_metric_card(metric):
+        """Build a single metric card with alert coloring."""
+        label = metric.get("metric_label", "")
+        value = metric.get("value", 0)
+        unit = metric.get("unit", "")
+        alert_level = metric.get("alert_level", "none")
+        source = metric.get("source", "")
+        trend = metric.get("trend")
+        trend_interp = metric.get("trend_interpretation")
+
+        # Alert color
+        if alert_level == "critical":
+            border_color = COLORS["negative"]
+            value_color = COLORS["negative"]
+        elif alert_level == "warning":
+            border_color = COLORS["warning"]
+            value_color = COLORS["warning"]
+        else:
+            border_color = COLORS["border"]
+            value_color = COLORS["text"]
+
+        # Format value display
+        try:
+            val_float = float(value)
+            if unit in ("%", "% of GDP", "% of income"):
+                value_display = f"{val_float:.1f}{unit.replace('% of GDP', '%').replace('% of income', '%')}"
+            elif unit == "years":
+                value_display = f"{val_float:.1f} {unit}"
+            elif unit == "ratio":
+                value_display = f"{val_float:.2f}x"
+            else:
+                value_display = f"{val_float:.1f} {unit}"
+        except:
+            value_display = f"{value} {unit}"
+
+        # Trend display for debt metrics
+        trend_display = ""
+        if trend:
+            trend_arrows = {"up": "↑", "down": "↓", "stable": "→"}
+            trend_display = trend_arrows.get(trend, "→")
+
+        card_content = [
+            # Header with label
+            html.Div(
+                [
+                    html.Span(label, style={"flex": "1"}),
+                    html.Span(trend_display, style={
+                        "fontSize": "1.1rem",
+                        "marginLeft": "6px",
+                        "color": value_color
+                    }) if trend_display else html.Span(),
+                ],
+                style={
+                    "display": "flex",
+                    "alignItems": "center",
+                    "fontSize": "0.72rem",
+                    "fontWeight": "600",
+                    "color": COLORS["text_secondary"],
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.3px",
+                    "marginBottom": "8px",
+                }
+            ),
+            # Value display
+            html.Div(
+                value_display,
+                style={
+                    "fontSize": "1.4rem",
+                    "fontWeight": "700",
+                    "color": value_color,
+                    "fontFamily": "monospace",
+                    "marginBottom": "6px",
+                }
+            ),
+            # Interpretation (for debt metrics)
+            html.Div(
+                trend_interp or "",
+                style={
+                    "fontSize": "0.7rem",
+                    "color": COLORS["text_secondary"],
+                    "marginBottom": "6px",
+                    "minHeight": "20px",
+                }
+            ) if trend_interp else html.Div(),
+            # Source
+            html.Div(
+                source,
+                style={
+                    "fontSize": "0.65rem",
+                    "color": COLORS["text_muted"],
+                    "fontStyle": "italic",
+                }
+            ),
+        ]
+
+        return html.Div(
+            card_content,
+            className="structural-metric-card",
+            style={
+                "backgroundColor": "rgba(255, 255, 255, 0.02)",
+                "border": f"1px solid {border_color}",
+                "borderRadius": "8px",
+                "padding": "12px 14px",
+                "transition": "all 0.15s",
+            }
+        )
+
+    sections = []
+
+    # Demographics section
+    if "demographics" in structural_by_category:
+        demo_cards = [build_metric_card(m) for m in structural_by_category["demographics"]]
+        sections.append(
+            html.Div([
+                html.Div(
+                    "Demographics",
+                    className="structural-section-title",
+                    style={
+                        "fontSize": "0.9rem",
+                        "fontWeight": "600",
+                        "color": COLORS["text"],
+                        "marginBottom": "12px",
+                        "textTransform": "uppercase",
+                        "letterSpacing": "0.5px",
+                    }
+                ),
+                html.Div(demo_cards, className="structural-grid"),
+            ], className="structural-section")
+        )
+
+    # Debt & Stability section
+    if debt_by_category:
+        debt_cards = [build_metric_card(m) for cat_metrics in debt_by_category.values() for m in cat_metrics]
+        sections.append(
+            html.Div([
+                html.Div(
+                    "Debt & Stability",
+                    className="structural-section-title",
+                    style={
+                        "fontSize": "0.9rem",
+                        "fontWeight": "600",
+                        "color": COLORS["text"],
+                        "marginBottom": "12px",
+                        "textTransform": "uppercase",
+                        "letterSpacing": "0.5px",
+                    }
+                ),
+                html.Div(debt_cards, className="structural-grid"),
+            ], className="structural-section")
+        )
+
+    # Productivity section
+    if "productivity" in structural_by_category:
+        prod_cards = [build_metric_card(m) for m in structural_by_category["productivity"]]
+        sections.append(
+            html.Div([
+                html.Div(
+                    "Productivity & Innovation",
+                    className="structural-section-title",
+                    style={
+                        "fontSize": "0.9rem",
+                        "fontWeight": "600",
+                        "color": COLORS["text"],
+                        "marginBottom": "12px",
+                        "textTransform": "uppercase",
+                        "letterSpacing": "0.5px",
+                    }
+                ),
+                html.Div(prod_cards, className="structural-grid"),
+            ], className="structural-section")
+        )
+
+    last_updated = structural_data.get("last_updated", "")
+
+    return html.Div([
+        html.Div([
+            html.H4("Structural Health", className="section-title",
+                     style={"fontSize": "1rem", "marginBottom": "0", "borderBottom": "none"}),
+            html.Span(
+                f"Updated: {last_updated}" if last_updated else "",
+                style={"fontSize": "0.7rem", "color": COLORS["text_muted"]}
+            ),
+        ], style={
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "space-between",
+            "marginBottom": "14px",
+        }),
+        html.Div(sections, style={"display": "flex", "flexDirection": "column", "gap": "16px"}),
+    ], className="structural-panel")

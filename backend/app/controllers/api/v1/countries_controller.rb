@@ -169,6 +169,62 @@ module Api
         }
       end
 
+      def structural_trends
+        country = Country.find(params[:id])
+        metrics = country.structural_metrics.order(date: :desc).limit(30)
+
+        # Group by metric type, keep most recent of each
+        grouped = metrics.group_by(&:metric_type).map { |metric_type, records|
+          latest = records.first
+          {
+            metric_type: latest.metric_type,
+            metric_label: latest.metric_label,
+            category: latest.category,
+            value: latest.value,
+            unit: latest.unit,
+            date: latest.date,
+            alert_level: latest.alert_level,
+            source: latest.source
+          }
+        }
+
+        render json: {
+          country_id: country.id,
+          country_name: country.name,
+          structural_metrics: grouped,
+          last_updated: metrics.first&.date
+        }
+      end
+
+      def debt_trends
+        country = Country.find(params[:id])
+        metrics = country.debt_metrics.order(date: :desc).limit(30)
+
+        # Group by metric type, keep most recent of each
+        grouped = metrics.group_by(&:metric_type).map { |metric_type, records|
+          latest = records.first
+          {
+            metric_type: latest.metric_type,
+            metric_label: latest.metric_label,
+            category: latest.category,
+            value: latest.value,
+            unit: latest.unit,
+            date: latest.date,
+            trend: latest.trend,
+            alert_level: latest.alert_level,
+            trend_interpretation: latest.trend_interpretation,
+            source: latest.source
+          }
+        }
+
+        render json: {
+          country_id: country.id,
+          country_name: country.name,
+          debt_metrics: grouped,
+          last_updated: metrics.first&.date
+        }
+      end
+
       private
 
       def country_json(country)

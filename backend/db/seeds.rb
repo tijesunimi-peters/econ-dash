@@ -538,3 +538,10 @@ de_sectors.each do |sector_name, sector_data|
 end
 
 puts "Seeded #{Country.count} countries, #{Sector.count} sectors, #{SubIndustry.count} sub-industries, #{Indicator.count} indicators"
+
+# ── Phase 1 & 2: Policy Timeline and Market Sentiment ──
+require_relative 'seeds/policy_decisions'
+
+# ── Phase 3: Structural Metrics and Debt Trends ──
+require_relative 'seeds/structural_metrics'
+require_relative 'seeds/debt_metrics'

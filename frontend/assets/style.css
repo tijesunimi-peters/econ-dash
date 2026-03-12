@@ -711,3 +711,47 @@ p, span, label {
     text-decoration: underline;
     color: var(--primary-hover);
 }
+
+/* ===== Structural Health Panel ===== */
+
+.structural-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.structural-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.structural-section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.structural-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.structural-metric-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    transition: all 0.15s;
+}
+
+.structural-metric-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--primary);
+}

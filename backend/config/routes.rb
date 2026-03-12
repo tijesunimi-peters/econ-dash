@@ -16,6 +16,8 @@ Rails.application.routes.draw do
           get :causal_factors
           get :policy_timeline
           get :market_sentiment
+          get :structural_trends
+          get :debt_trends
           get 'compare/:other_id', action: :compare
         end
         collection do

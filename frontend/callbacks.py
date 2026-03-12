@@ -261,6 +261,30 @@ def register_callbacks(app):
 
         return build_market_sentiment(sentiment_data)
 
+    # ── Structural Health Panel ──
+    @app.callback(
+        Output("structural-panel-container", "children"),
+        Input("nav-state", "data"),
+    )
+    def update_structural_panel(nav):
+        country_id = nav.get("country_id")
+        level = nav.get("level", "overview")
+        if not country_id or level == "indicators":
+            return html.Div()
+
+        structural_data = api_client.get_country_structural_trends(country_id)
+        debt_data = api_client.get_country_debt_trends(country_id)
+
+        if isinstance(structural_data, dict) and "error" in structural_data:
+            return html.Div()
+        if isinstance(debt_data, dict) and "error" in debt_data:
+            return html.Div()
+        if not isinstance(structural_data, dict) or not isinstance(debt_data, dict):
+            return html.Div()
+
+        from components import build_structural_health
+        return build_structural_health(structural_data, debt_data)
+
     # ── Anomaly Alerts ──
     # Visible at sectors and sub_industries; hidden at indicator drill-down
     @app.callback(
