@@ -3,6 +3,63 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 import pandas as pd
 from styles import COLORS, CHART_TEMPLATE, RECESSIONS, trend_color, trend_arrow
+from tooltips import get_tooltip
+
+
+# ── Helper: Popover Trigger Builder ───────────────────────────────────
+
+def _build_popover_trigger(tooltip_section, tooltip_key, trigger_id):
+    """
+    Build a (trigger_button, popover_component) tuple for help popovers.
+
+    Args:
+        tooltip_section (str): Section key from tooltips.py (e.g., 'metrics')
+        tooltip_key (str): Tooltip key (e.g., 'yoy_change')
+        trigger_id (str): Unique HTML ID for the trigger element
+
+    Returns:
+        tuple: (trigger_span, popover_component) to be added to parent
+    """
+    tooltip_data = get_tooltip(tooltip_section, tooltip_key)
+    if not tooltip_data:
+        return None, None
+
+    trigger = html.Span(
+        "?",
+        id=trigger_id,
+        className="popover-trigger",
+        n_clicks=0,
+        style={"cursor": "pointer", "marginLeft": "4px"},
+    )
+
+    popover = dbc.Popover(
+        children=[
+            dbc.PopoverHeader(tooltip_data["title"]),
+            dbc.PopoverBody([
+                dcc.Markdown(
+                    tooltip_data["content"],
+                    dangerously_allow_html=True,
+                    style={"fontSize": "0.85rem", "lineHeight": "1.4"}
+                ),
+                html.Hr(style={"borderColor": COLORS["border"], "margin": "10px 0"}),
+                html.Div(
+                    [
+                        html.Strong("💡 ", style={"marginRight": "4px"}),
+                        html.Span(tooltip_data.get("action_items", ""),
+                                 style={"fontSize": "0.8rem", "color": COLORS["text_secondary"]})
+                    ],
+                    style={"display": "flex", "alignItems": "flex-start"}
+                )
+            ])
+        ],
+        id=f"{trigger_id}-popover",
+        target=trigger_id,
+        is_open=False,
+        placement="right",
+        trigger="click",
+    )
+
+    return trigger, popover
 
 
 # ── Existing: Treemap ─────────────────────────────────────────────────
@@ -102,11 +159,16 @@ def build_sparkline_table(sub_industries):
     if not sub_industries:
         return html.P("No sub-industries found.", style={"color": COLORS["text_muted"]})
 
+    # Build header with popovers
+    trigger_latest, pop_latest = _build_popover_trigger("metrics", "percentile", "pop-latest-header")
+    trigger_yoy, pop_yoy = _build_popover_trigger("metrics", "yoy_change", "pop-yoy-header")
+    trigger_trend, pop_trend = _build_popover_trigger("metrics", "sparkline", "pop-trend-header")
+
     header = html.Thead(html.Tr([
         html.Th("Sub-Industry"),
-        html.Th("Latest"),
-        html.Th("YoY Change"),
-        html.Th("Trend (12mo)"),
+        html.Th(["Latest", trigger_latest] if trigger_latest else "Latest"),
+        html.Th(["YoY Change", trigger_yoy] if trigger_yoy else "YoY Change"),
+        html.Th(["Trend (12mo)", trigger_trend] if trigger_trend else "Trend (12mo)"),
     ]))
 
     rows = []
@@ -158,11 +220,15 @@ def build_sparkline_table(sub_industries):
         ], id={"type": "si-row", "index": si["id"]}, n_clicks=0)
         rows.append(row)
 
+    # Collect all popovers
+    popovers = [p for p in [pop_latest, pop_yoy, pop_trend] if p]
+
     return html.Div([
         dbc.Table(
             [header, html.Tbody(rows)],
             hover=True, striped=True, responsive=True,
         ),
+        *popovers,  # Add all popovers to container
     ], className="data-table-card")
 
 
@@ -219,6 +285,9 @@ def build_percentile_gauge(indicator_data):
     classification = indicator_data.get("classification", "normal")
     name = indicator_data.get("name", "")
 
+    # Build popover for percentile explanation
+    trigger_perc, pop_perc = _build_popover_trigger("metrics", "percentile", "pop-percentile-gauge")
+
     color_map = {
         "extreme_low": COLORS["negative"],
         "low": COLORS["warning"],
@@ -256,10 +325,14 @@ def build_percentile_gauge(indicator_data):
     )
 
     return html.Div([
-        html.P(name, style={"fontSize": "0.75rem", "color": COLORS["text_secondary"],
-                             "marginBottom": "2px", "textAlign": "center"}),
+        html.Div([
+            html.P(name, style={"fontSize": "0.75rem", "color": COLORS["text_secondary"],
+                                 "marginBottom": "2px", "textAlign": "center"}),
+            trigger_perc if trigger_perc else html.Div(),
+        ], style={"textAlign": "center"}),
         dcc.Graph(figure=fig, config={"displayModeBar": False},
                   style={"height": "140px", "width": "180px"}),
+        pop_perc if pop_perc else html.Div(),
     ], className="percentile-gauge")
 
 
@@ -271,6 +344,10 @@ def build_anomaly_panel(anomalies):
 
     badge_colors = {"critical": "danger", "warning": "warning"}
 
+    # Build popovers for anomaly explanation
+    trigger_zscore, pop_zscore = _build_popover_trigger("anomalies", "z_score", "pop-anomaly-zscore")
+    trigger_severity, pop_severity = _build_popover_trigger("anomalies", "severity", "pop-anomaly-severity")
+
     items = []
     for a in anomalies[:10]:
         severity = a.get("severity", "warning")
@@ -280,7 +357,8 @@ def build_anomaly_panel(anomalies):
         items.append(
             html.Div([
                 dbc.Badge(severity.upper(), color=badge_colors.get(severity, "secondary"),
-                          className="me-2", style={"fontSize": "0.7rem"}),
+                          className="me-2", style={"fontSize": "0.7rem"},
+                          title="Click ? for severity explanation"),
                 html.Span(
                     f"{a.get('indicator_name', '')} ",
                     style={"color": COLORS["text"], "fontWeight": "500"},
@@ -304,18 +382,23 @@ def build_anomaly_panel(anomalies):
         header_text = f"{critical_count} Critical, {count - critical_count} Warning"
 
     return html.Div([
-        dbc.Button(
-            [html.Span("\u26a0 ", style={"marginRight": "6px"}), header_text],
-            id="anomaly-toggle",
-            color="link",
-            className="anomaly-header-btn",
-            n_clicks=0,
-        ),
+        html.Div([
+            dbc.Button(
+                [html.Span("\u26a0 ", style={"marginRight": "6px"}), header_text],
+                id="anomaly-toggle",
+                color="link",
+                className="anomaly-header-btn",
+                n_clicks=0,
+            ),
+            trigger_zscore if trigger_zscore else html.Div(),
+        ], style={"display": "flex", "alignItems": "center", "gap": "8px"}),
         dbc.Collapse(
             html.Div(items, className="anomaly-list"),
             id="anomaly-collapse",
             is_open=False,
         ),
+        pop_zscore if pop_zscore else html.Div(),
+        pop_severity if pop_severity else html.Div(),
     ], className="anomaly-panel")
 
 
@@ -419,6 +502,11 @@ def _build_cycle_clock_compact(cycle_data):
                           "fontSize": "0.85rem"}),
         )
 
+    # Build popovers for cycle explanation
+    trigger_phase, pop_phase = _build_popover_trigger("business_cycle", "phase", "pop-cycle-phase")
+    trigger_x, pop_x = _build_popover_trigger("business_cycle", "x_position", "pop-cycle-x")
+    trigger_y, pop_y = _build_popover_trigger("business_cycle", "y_position", "pop-cycle-y")
+
     current_phase = cycle_data.get("current_phase", "unknown")
     duration = cycle_data.get("phase_duration_months", 0)
     phase_color = PHASE_COLORS.get(current_phase, COLORS["neutral"])
@@ -519,13 +607,19 @@ def _build_cycle_clock_compact(cycle_data):
         dcc.Graph(figure=fig, config={"displayModeBar": False},
                   style={"height": "420px", "width": "100%"}),
         html.Div([
-            html.Span(current_phase.title(),
-                      style={"color": phase_color, "fontSize": "1.5rem",
-                             "fontWeight": "700"}),
+            html.Div([
+                html.Span(current_phase.title(),
+                          style={"color": phase_color, "fontSize": "1.5rem",
+                                 "fontWeight": "700"}),
+                trigger_phase if trigger_phase else html.Div(),
+            ], style={"display": "flex", "alignItems": "center", "justifyContent": "center"}),
             html.Span(f" \u00b7 {duration}mo",
                       style={"color": COLORS["text_secondary"], "fontSize": "1rem",
                              "marginLeft": "8px"}),
         ], style={"textAlign": "center", "marginTop": "-12px"}),
+        pop_phase if pop_phase else html.Div(),
+        pop_x if pop_x else html.Div(),
+        pop_y if pop_y else html.Div(),
     ], style={"width": "100%"})
 
 
@@ -576,6 +670,10 @@ def _build_leading_compact(leading_indicators):
 def _build_recs_compact(recs, phase):
     """Inline sector recommendation chips."""
     phase_color = PHASE_COLORS.get(phase, COLORS["neutral"])
+
+    # Build popover for sector recommendations
+    trigger_recs, pop_recs = _build_popover_trigger("business_cycle", "sector_recommendations", "pop-sector-recs")
+
     chips = [
         html.Span(sector, className="sector-rec-chip", style={
             "background": f"rgba({int(phase_color[1:3], 16)},{int(phase_color[3:5], 16)},{int(phase_color[5:7], 16)},0.15)",
@@ -585,8 +683,12 @@ def _build_recs_compact(recs, phase):
         for sector in recs
     ]
     return html.Div([
-        html.Div("Favored Sectors", className="intel-label"),
+        html.Div([
+            html.Span("Favored Sectors", className="intel-label", style={"marginRight": "6px"}),
+            trigger_recs if trigger_recs else html.Div(),
+        ], style={"display": "flex", "alignItems": "center"}),
         html.Div(chips, className="sector-rec-chips"),
+        pop_recs if pop_recs else html.Div(),
     ], style={"marginTop": "6px"})
 
 
@@ -614,6 +716,10 @@ def _build_narrative_compact(narrative):
 def build_momentum_scoreboard(momentum_data):
     if not momentum_data:
         return html.Div()
+
+    # Build popovers for momentum explanation
+    trigger_momentum, pop_momentum = _build_popover_trigger("momentum", "momentum_scale", "pop-momentum-scale")
+    trigger_roc, pop_roc = _build_popover_trigger("momentum", "rate_of_change", "pop-momentum-roc")
 
     cards = []
     for sector in momentum_data:
@@ -674,9 +780,14 @@ def build_momentum_scoreboard(momentum_data):
 
     # 2-column grid layout
     return html.Div([
-        html.H4("Sector Momentum Rankings", className="section-title",
-                 style={"fontSize": "1rem"}),
+        html.Div([
+            html.H4("Sector Momentum Rankings", className="section-title",
+                     style={"fontSize": "1rem", "marginBottom": "0", "borderBottom": "none"}),
+            trigger_momentum if trigger_momentum else html.Div(),
+        ], style={"display": "flex", "alignItems": "center", "gap": "8px", "marginBottom": "16px"}),
         html.Div(cards, className="momentum-grid"),
+        pop_momentum if pop_momentum else html.Div(),
+        pop_roc if pop_roc else html.Div(),
     ], className="momentum-scoreboard")
 
 
@@ -794,6 +905,11 @@ def _build_factors_compact(factors_data):
     if not factors_data or not isinstance(factors_data, list) or len(factors_data) == 0:
         return html.Div()
 
+    # Build popovers for causal factors
+    trigger_corr, pop_corr = _build_popover_trigger("causal_factors", "correlation", "pop-factor-correlation")
+    trigger_status, pop_status = _build_popover_trigger("causal_factors", "proxy_status", "pop-factor-status")
+    trigger_confidence, pop_confidence = _build_popover_trigger("causal_factors", "confidence", "pop-factor-confidence")
+
     # Take top 5 factors
     top_factors = factors_data[:5]
 
@@ -899,17 +1015,22 @@ def _build_factors_compact(factors_data):
 
     return html.Div(
         [
-            html.Div(
-                "Causal Factors",
-                style={
-                    "fontSize": "0.75rem",
-                    "fontWeight": "600",
-                    "color": COLORS["text_secondary"],
-                    "marginBottom": "8px",
-                    "textTransform": "uppercase",
-                    "letterSpacing": "0.5px",
-                },
-            ),
+            html.Div([
+                html.Div(
+                    "Causal Factors",
+                    style={
+                        "fontSize": "0.75rem",
+                        "fontWeight": "600",
+                        "color": COLORS["text_secondary"],
+                        "textTransform": "uppercase",
+                        "letterSpacing": "0.5px",
+                    },
+                ),
+                trigger_corr if trigger_corr else html.Div(),
+            ], style={"display": "flex", "alignItems": "center", "gap": "6px", "marginBottom": "8px"}),
             html.Div(chips, style={"display": "flex", "flexWrap": "wrap"}),
+            pop_corr if pop_corr else html.Div(),
+            pop_status if pop_status else html.Div(),
+            pop_confidence if pop_confidence else html.Div(),
         ]
     )

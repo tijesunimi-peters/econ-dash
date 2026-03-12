@@ -20,7 +20,42 @@ from components import (
 )
 
 
+def _create_popover_callback(app, trigger_id):
+    """Factory function to create popover toggle callback with correct closure."""
+    @app.callback(
+        Output(f"{trigger_id}-popover", "is_open"),
+        Input(trigger_id, "n_clicks"),
+        State(f"{trigger_id}-popover", "is_open"),
+        prevent_initial_call=True,
+    )
+    def toggle_popover(n_clicks, is_open):
+        if n_clicks:
+            return not is_open
+        return is_open
+
+
 def register_callbacks(app):
+
+    # ── Popover Toggle Callbacks ──
+    # Create callbacks for all popover triggers
+    POPOVER_TRIGGERS = [
+        # Metrics popovers
+        "pop-latest-header", "pop-yoy-header", "pop-trend-header",
+        "pop-percentile-gauge",
+        # Anomaly popovers
+        "pop-anomaly-zscore",
+        # Cycle popovers
+        "pop-cycle-phase", "pop-cycle-x", "pop-cycle-y",
+        # Sector recommendations
+        "pop-sector-recs",
+        # Momentum popovers
+        "pop-momentum-scale", "pop-momentum-roc",
+        # Factor popovers
+        "pop-factor-correlation", "pop-factor-status", "pop-factor-confidence",
+    ]
+
+    for trigger_id in POPOVER_TRIGGERS:
+        _create_popover_callback(app, trigger_id)
 
     # ── Load country dropdown options ──
     @app.callback(
