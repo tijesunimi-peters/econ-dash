@@ -56,7 +56,7 @@ def _build_popover_trigger(tooltip_section, tooltip_key, trigger_id):
         target=trigger_id,
         is_open=False,
         placement="right",
-        autohide=False,  # Keep popover open until explicitly closed
+        autohide=True,  # Auto-close when clicking outside
     )
 
     return trigger, popover

@@ -21,7 +21,10 @@ from components import (
 
 
 def _create_popover_callback(app, trigger_id):
-    """Factory function to create popover toggle callback with correct closure."""
+    """Factory function to create popover toggle callback with correct closure.
+
+    Opens popover on trigger click, closes on outside click via autohide=True.
+    """
     @app.callback(
         Output(f"{trigger_id}-popover", "is_open"),
         Input(trigger_id, "n_clicks"),
