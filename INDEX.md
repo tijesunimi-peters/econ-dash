@@ -1,8 +1,8 @@
 # Economic Dashboard — Documentation Index
 
 **Last Updated:** 2026-03-12
-**Status:** ✅ Fully Functional & Production Ready
-**Active Development:** Completed causal factors feature, cycle phase filtering, and comprehensive documentation
+**Status:** ✅ Fully Functional & Production Ready (Phase 4 Complete)
+**Latest:** Phase 4 Trade Flows & Supply Chain (✅ COMPLETE)
 
 ---
 
@@ -20,12 +20,14 @@
 - **[API_ENDPOINTS.md](API_ENDPOINTS.md)** — Complete REST API documentation with examples
 - **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** — Architecture, patterns, troubleshooting
 
-### 📋 Implementation Plans
-- **[PLAN-CAUSAL-FACTORS.md](PLAN-CAUSAL-FACTORS.md)** — Causal factors feature design
-- **[PLAN-COUNTRIES.md](PLAN-COUNTRIES.md)** — Adding JP, AU, DE design
-- **[PLAN.md](PLAN.md)** — Original architecture plan
-- **[PLAN-V2.md](PLAN-V2.md)** — Phase-based implementation roadmap
-- **[STRATEGIC_CONTEXT_ROADMAP.md](STRATEGIC_CONTEXT_ROADMAP.md)** — 8-week plan to add strategic context (policy, sentiment, structural, trade)
+### 🗺️ Roadmap & Planning
+- **[ROADMAP.md](ROADMAP.md)** — Next steps, quick wins, future features (current priorities)
+- **[STRATEGIC_CONTEXT_ROADMAP.md](STRATEGIC_CONTEXT_ROADMAP.md)** — Strategic context completion (Phases 1-4)
+
+### 📋 Historical Plans (Archive)
+- **[PLAN-CAUSAL-FACTORS.md](PLAN-CAUSAL-FACTORS.md)** — Causal factors feature design (completed)
+- **[PLAN-COUNTRIES.md](PLAN-COUNTRIES.md)** — Adding JP, AU, DE design (completed)
+- **[PLAN.md](PLAN.md)** — Original architecture plan (legacy)
 
 ---
 

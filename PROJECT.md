@@ -48,12 +48,13 @@ docker compose exec backend bin/rails data:ingest
 
 ## Documentation
 
+- **[INDEX.md](INDEX.md)** — Complete documentation index and quick navigation
 - **[STATUS.md](STATUS.md)** — Current project status, completed features, architecture overview, testing checklist
 - **[API_ENDPOINTS.md](API_ENDPOINTS.md)** — Full REST API reference with examples, parameters, caching policies
 - **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** — Development workflow, common tasks, debugging, troubleshooting
+- **[ROADMAP.md](ROADMAP.md)** — Next steps, quick wins, future features, implementation timeline
 - **[CHANGELOG.md](CHANGELOG.md)** — Version history and feature releases
-- **[PLAN-CAUSAL-FACTORS.md](PLAN-CAUSAL-FACTORS.md)** — Design document for causal factors feature
-- **[PLAN-COUNTRIES.md](PLAN-COUNTRIES.md)** — Design document for adding Japan, Australia, Germany
+- **[STRATEGIC_CONTEXT_ROADMAP.md](STRATEGIC_CONTEXT_ROADMAP.md)** — Strategic context completion (Phases 1-4)
 
 ## Features Implemented
 
@@ -77,6 +78,32 @@ docker compose exec backend bin/rails data:ingest
 - Rolling 12-month Pearson correlation analysis
 - Proxy series trend detection
 - Confidence scoring and ranking
+
+### ✅ Strategic Context (Phases 1-4)
+
+**Phase 1: Policy Timeline**
+- 12 central bank/government decisions across 5 countries
+- Timeline visualization with chronological order
+- Decision type categorization
+
+**Phase 2: Market Sentiment**
+- 10 sentiment indicators (PMI, VIX, CCI, yield curve spreads, etc.)
+- Change tracking and trend analysis
+- Sentiment interpretation per indicator
+
+**Phase 3: Structural Health**
+- 13 structural metrics (population, demographics, productivity, development, trade)
+- 4 debt metrics (government, corporate, household, deficit)
+- World Bank API integration for live data
+- 5-year trend analysis (up/down/stable)
+- Trend forecasting with confidence intervals
+
+**Phase 4: Trade Flows & Supply Chain**
+- 7 trade flow metrics per country
+- Exports, imports, trade balance, FDI, supply chain metrics
+- 35 total records seeded (7 × 5 countries)
+- Supply chain concentration & import dependency alerts
+- Sparklines with 5-year historical data
 
 ### ✅ Cross-Country Analysis
 - Side-by-side comparison charts

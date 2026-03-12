@@ -1,7 +1,8 @@
 # Economic Dashboard — Current Status
 
 **Last Updated:** 2026-03-12
-**Git Commits:** 12 ahead of origin/main
+**Git Commits:** 14 ahead of origin/main (Phase 4 complete)
+**Phase Status:** 4/4 Strategic Context phases ✅ COMPLETE
 
 ## Completed Features
 
@@ -59,21 +60,53 @@
   - Status emojis (📈 rising, 📉 falling, ➡️ stable)
 - [x] API endpoint: `GET /api/v1/countries/:id/causal_factors` (1-hour cache)
 
+### ✅ Strategic Context — Phase 1: Policy Timeline
+- [x] 12 central bank/government decisions across 5 countries
+- [x] Decision types: rate decisions, fiscal policy, regulatory changes
+- [x] API endpoint: `GET /api/v1/countries/:id/policy_timeline`
+- [x] Frontend: Policy timeline panel with chronological display
+
+### ✅ Strategic Context — Phase 2: Market Sentiment
+- [x] 10 sentiment indicators (PMI, VIX, CCI, yield curve, etc.)
+- [x] Change tracking (prior value, percent change)
+- [x] Sentiment interpretation per metric
+- [x] API endpoint: `GET /api/v1/countries/:id/market_sentiment`
+- [x] Frontend: Sentiment panel with trend indicators
+
+### ✅ Strategic Context — Phase 3: Structural Health
+- [x] 13 structural metrics (demographics, labor, productivity, development, trade)
+- [x] 4 debt metrics (government, corporate, household, deficit)
+- [x] Alert thresholds (critical/warning/none)
+- [x] 5-year trend analysis (up/down/stable)
+- [x] World Bank API integration for live data
+- [x] Historical time-series with sparklines
+- [x] Linear/exponential trend forecasting with confidence intervals
+- [x] API endpoints: `structural_trends`, `debt_trends`, `structural_forecast`
+- [x] Frontend: 3-section panel (demographics, debt, productivity)
+
+### ✅ Strategic Context — Phase 4: Trade Flows & Supply Chain
+- [x] 7 trade flow metrics per country (exports, imports, trade balance, FDI, supply chain concentration, export diversification, import dependency)
+- [x] 35 total records (7 metrics × 5 countries)
+- [x] Alert thresholds for supply chain risk (concentration >40 critical, >30 warning)
+- [x] 5-year trend analysis and historical data
+- [x] World Bank API ingest task (`trade_data:ingest`)
+- [x] API endpoint: `GET /api/v1/countries/:id/trade_flows`
+- [x] Frontend: 4-section panel (balance, flows, investment, supply chain)
+
 ### ✅ Documentation
 - [x] Comprehensive API documentation (`API_ENDPOINTS.md`)
   - 20+ endpoints with examples
   - Request/response schemas
   - Error handling and caching policies
-- [x] Project roadmap (`PROJECT.md`)
+- [x] Project roadmap (`ROADMAP.md`)
 - [x] Changelog (`CHANGELOG.md`)
-- [x] Implementation plans (`PLAN-CAUSAL-FACTORS.md`, `PLAN-COUNTRIES.md`)
 
 ## Architecture Overview
 
 ### Backend (Rails 8.1 API)
-- **Models:** Country, Sector, SubIndustry, Indicator, DataPoint
-- **Services:** BusinessCycleService, CausalFactorService, PercentileService, AnomalyDetectionService, MomentumScoreboardService, ExecutiveSummaryService, CorrelationService, CrossCountryService, AccelerationService
-- **Data Clients:** FredClient, StatcanClient, BankOfCanadaClient
+- **Models:** Country, Sector, SubIndustry, Indicator, DataPoint, PolicyDecision, MarketSentiment, StructuralMetric, StructuralDataPoint, DebtMetric, DebtDataPoint, TradeFlow, TradeFlowDataPoint
+- **Services:** BusinessCycleService, CausalFactorService, PercentileService, AnomalyDetectionService, MomentumScoreboardService, ExecutiveSummaryService, CorrelationService, CrossCountryService, AccelerationService, WorldBankClient, TrendForecastService
+- **Data Clients:** FredClient, StatcanClient, BankOfCanadaClient, WorldBankClient
 - **Caching:** 1-hour Redis cache for expensive computations
 - **API Routes:** `/api/v1/` with nested resources (countries/sectors/sub_industries/indicators)
 

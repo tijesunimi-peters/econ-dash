@@ -1,6 +1,33 @@
 # Changelog
 
-## 2026-03-12 (continued) — API Documentation & Cycle Phase Filtering
+## 2026-03-12 (Session 6) — Phase 4: Trade Flows & Supply Chain ✅
+
+### Added
+- **Phase 4: Trade Flows & Supply Chain** — Complete strategic context layer
+  - 7 trade flow types: exports, imports, trade balance, FDI, supply chain concentration, export diversification, import dependency ratio
+  - Backend models: `TradeFlow` and `TradeFlowDataPoint` (mirrors Phase 3 pattern)
+  - Database migrations: `create_trade_flows`, `create_trade_flow_data_points` with proper indexes
+  - API endpoint: `GET /api/v1/countries/:id/trade_flows` (grouped by category)
+  - Rake task: `trade_data:ingest` (fetches from World Bank, falls back to seed data)
+  - Seed data: 35 records (7 metrics × 5 countries) with realistic values
+  - Alert logic: Supply chain concentration (>40 critical, 30-40 warning), import dependency (>2.0 critical, 1.5-2.0 warning)
+  - Frontend component: `build_trade_flows()` with 4 sections (balance, flows, investment, supply chain)
+  - Callback: `update_trade_flows()` triggered on nav-state changes
+  - CSS classes: `.trade-panel`, `.trade-grid`, `.trade-card` with hover effects
+  - Value formatting: % for GDP metrics, ratio/index for supply chain metrics
+  - Data source attribution: FRED, World Bank, or Seed Data
+
+### Updated Documentation
+- **INDEX.md** — Phase 4 completion noted, roadmap links updated
+- **STATUS.md** — Phase 4 features added, architecture updated with new models
+- **PROJECT.md** — Phase 4 description added, documentation links consolidated
+- **ROADMAP.md** — New file with next steps, quick wins, and future features (Tiers 2-4)
+
+### Fixed
+- Data source labels: Trade flows correctly attributed (FRED vs World Bank)
+- Seed data labeling: Structural metrics corrected to show FRED source
+
+## 2026-03-12 (Session 5 continued) — API Documentation & Cycle Phase Filtering
 
 ### Added
 - **Cycle Phase Filtering API** — `GET /api/v1/countries/by_cycle_phase/:phase`
