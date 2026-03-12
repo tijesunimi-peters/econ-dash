@@ -113,13 +113,17 @@ def build_redesigned_homepage(
         # ── Storage store for localStorage persistence (Phase 5) ──
         storage_store,
 
-        # ── Row 1: Intelligence Panel (1/3) + Sector Treemap (2/3) ──
+        # ── Row 1: Intelligence Panel (Full Width) ──
         dashboard_grid([
             intelligence_container,
-            treemap_container,
-        ], layout="1-2"),
+        ], layout="1-col"),
 
-        # ── Row 2: Quick Stats ──
+        # ── Row 2: Sector Treemap (Full Width) ──
+        dashboard_grid([
+            treemap_container,
+        ], layout="1-col"),
+
+        # ── Row 3: Quick Stats ──
         _build_quick_stats_row(),
 
         # ── Row 3+: Collapsible Panels ──
