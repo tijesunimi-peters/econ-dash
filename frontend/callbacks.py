@@ -17,6 +17,7 @@ from components import (
     build_cross_country_comparison,
     build_correlation_heatmap,
     build_policy_timeline,
+    build_market_sentiment,
     _build_factors_compact,
 )
 
@@ -240,6 +241,25 @@ def register_callbacks(app):
             return html.Div()
 
         return build_policy_timeline(policies)
+
+    # ── Market Sentiment Panel ──
+    @app.callback(
+        Output("sentiment-panel-container", "children"),
+        Input("nav-state", "data"),
+    )
+    def update_sentiment_panel(nav):
+        country_id = nav.get("country_id")
+        level = nav.get("level", "overview")
+        if not country_id or level == "indicators":
+            return html.Div()
+
+        sentiment_data = api_client.get_country_market_sentiment(country_id)
+        if isinstance(sentiment_data, dict) and "error" in sentiment_data:
+            return html.Div()
+        if not isinstance(sentiment_data, dict):
+            return html.Div()
+
+        return build_market_sentiment(sentiment_data)
 
     # ── Anomaly Alerts ──
     # Visible at sectors and sub_industries; hidden at indicator drill-down

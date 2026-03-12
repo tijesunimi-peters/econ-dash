@@ -139,6 +139,36 @@ module Api
         }
       end
 
+      def market_sentiment
+        country = Country.find(params[:id])
+        sentiments = country.market_sentiments.order(date: :desc).limit(30)
+
+        # Group by metric type, keep most recent of each
+        grouped = sentiments.group_by(&:metric_type).map { |metric, records|
+          latest = records.first
+          {
+            metric_type: latest.metric_type,
+            metric_label: latest.metric_label,
+            value: latest.value,
+            unit: latest.unit,
+            date: latest.date,
+            trend: latest.trend,
+            interpretation: latest.sentiment_interpretation,
+            change_from_prior: latest.change_from_prior,
+            percent_change: latest.percent_change_from_prior,
+            source: latest.source,
+            notes: latest.notes
+          }
+        }
+
+        render json: {
+          country_id: country.id,
+          country_name: country.name,
+          sentiment_indicators: grouped,
+          last_updated: sentiments.first&.date
+        }
+      end
+
       private
 
       def country_json(country)

@@ -906,6 +906,152 @@ def build_correlation_heatmap(corr_data):
     return html.Div(content, className="chart-card")
 
 
+# ── Market Sentiment Panel ────────────────────────────────────────
+
+def build_market_sentiment(sentiment_data):
+    """Market expectations and sentiment indicators panel."""
+    if not sentiment_data:
+        return html.Div()
+
+    indicators = sentiment_data.get("sentiment_indicators", [])
+    if not indicators:
+        return html.Div()
+
+    cards = []
+    for ind in indicators:
+        metric_type = ind.get("metric_type", "")
+        label = ind.get("metric_label", "")
+        value = float(ind.get("value", 0))
+        unit = ind.get("unit", "")
+        trend = ind.get("trend", "stable")
+        interpretation = ind.get("interpretation")
+        change = ind.get("change_from_prior")
+        source = ind.get("source", "")
+
+        # Trend arrow and color
+        trend_arrows = {"up": "\u25b2", "down": "\u25bc", "stable": "\u25ac"}
+        trend_colors = {
+            "up": COLORS["positive"],
+            "down": COLORS["negative"],
+            "stable": COLORS["neutral"]
+        }
+        arrow = trend_arrows.get(trend, "\u25ac")
+        t_color = trend_colors.get(trend, COLORS["neutral"])
+
+        # PMI threshold coloring: >50 = expansion (green), <50 = contraction (red)
+        if metric_type in ("pmi", "services_pmi"):
+            value_color = COLORS["positive"] if value > 50 else COLORS["negative"]
+        elif metric_type == "cci":
+            value_color = COLORS["positive"] if value > 100 else COLORS["warning"]
+        elif metric_type == "vix":
+            value_color = COLORS["positive"] if value < 20 else (COLORS["warning"] if value < 30 else COLORS["negative"])
+        else:
+            value_color = COLORS["text"]
+
+        # Format value display
+        if unit == "%":
+            value_display = f"{value:.1f}%"
+        elif unit == "index":
+            value_display = f"{value:.1f}"
+        else:
+            value_display = f"{value:.2f} {unit}"
+
+        # Change display
+        change_display = ""
+        if change is not None:
+            change_val = float(change)
+            change_sign = "+" if change_val > 0 else ""
+            if unit == "%":
+                change_display = f"{change_sign}{change_val:.1f}pp"
+            else:
+                change_display = f"{change_sign}{change_val:.1f}"
+
+        card = html.Div([
+            # Header: label
+            html.Div(
+                label,
+                style={
+                    "fontSize": "0.72rem",
+                    "fontWeight": "600",
+                    "color": COLORS["text_secondary"],
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.3px",
+                    "marginBottom": "6px",
+                }
+            ),
+            # Value row
+            html.Div([
+                html.Span(
+                    value_display,
+                    style={
+                        "fontSize": "1.3rem",
+                        "fontWeight": "700",
+                        "color": value_color,
+                        "fontFamily": "monospace",
+                    }
+                ),
+                html.Span(
+                    f" {arrow}",
+                    style={
+                        "color": t_color,
+                        "fontSize": "0.85rem",
+                        "marginLeft": "6px",
+                    }
+                ),
+            ], style={"marginBottom": "4px"}),
+            # Change from prior
+            html.Div([
+                html.Span(
+                    change_display,
+                    style={
+                        "fontSize": "0.75rem",
+                        "fontFamily": "monospace",
+                        "color": t_color,
+                        "marginRight": "8px",
+                    }
+                ) if change_display else html.Span(),
+                html.Span(
+                    interpretation or "",
+                    style={
+                        "fontSize": "0.7rem",
+                        "color": value_color,
+                        "fontWeight": "500",
+                    }
+                ) if interpretation else html.Span(),
+            ], style={"marginBottom": "4px"}),
+            # Source
+            html.Div(
+                source,
+                style={
+                    "fontSize": "0.65rem",
+                    "color": COLORS["text_muted"],
+                    "fontStyle": "italic",
+                }
+            ),
+        ], className="sentiment-card")
+
+        cards.append(card)
+
+    last_updated = sentiment_data.get("last_updated", "")
+
+    return html.Div([
+        html.Div([
+            html.H4("Market Sentiment", className="section-title",
+                     style={"fontSize": "1rem", "marginBottom": "0", "borderBottom": "none"}),
+            html.Span(
+                f"Updated: {last_updated}" if last_updated else "",
+                style={"fontSize": "0.7rem", "color": COLORS["text_muted"]}
+            ),
+        ], style={
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "space-between",
+            "marginBottom": "14px",
+        }),
+        html.Div(cards, className="sentiment-grid"),
+    ], className="sentiment-panel")
+
+
 # ── Policy Timeline Panel ─────────────────────────────────────────
 
 def build_policy_timeline(policies):

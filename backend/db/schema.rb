@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_053816) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_12_054540) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_053816) do
     t.string "unit"
     t.datetime "updated_at", null: false
     t.index ["sub_industry_id"], name: "index_indicators_on_sub_industry_id"
+  end
+
+  create_table "market_sentiments", force: :cascade do |t|
+    t.bigint "country_id", null: false
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.string "metric_type", null: false
+    t.text "notes"
+    t.decimal "prior_value", precision: 10, scale: 2
+    t.string "source"
+    t.string "trend"
+    t.string "unit"
+    t.datetime "updated_at", null: false
+    t.decimal "value", precision: 10, scale: 2, null: false
+    t.index ["country_id", "date"], name: "index_market_sentiments_on_country_id_and_date"
+    t.index ["country_id", "metric_type", "date"], name: "index_market_sentiments_on_country_id_and_metric_type_and_date"
+    t.index ["country_id"], name: "index_market_sentiments_on_country_id"
+    t.index ["metric_type"], name: "index_market_sentiments_on_metric_type"
   end
 
   create_table "policy_decisions", force: :cascade do |t|
@@ -82,6 +100,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_053816) do
 
   add_foreign_key "data_points", "indicators"
   add_foreign_key "indicators", "sub_industries"
+  add_foreign_key "market_sentiments", "countries"
   add_foreign_key "policy_decisions", "countries"
   add_foreign_key "sectors", "countries"
   add_foreign_key "sub_industries", "sectors"

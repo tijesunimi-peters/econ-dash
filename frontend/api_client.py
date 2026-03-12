@@ -85,3 +85,8 @@ def get_country_causal_factors(country_id):
 def get_country_policies(country_id):
     """Fetch policy timeline for a country."""
     return _get(f"/countries/{country_id}/policy_timeline")
+
+
+def get_country_market_sentiment(country_id):
+    """Fetch market sentiment indicators for a country."""
+    return _get(f"/countries/{country_id}/market_sentiment")

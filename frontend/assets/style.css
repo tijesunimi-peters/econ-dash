@@ -511,6 +511,35 @@ p, span, label {
     background: transparent !important;
 }
 
+/* ===== Market Sentiment ===== */
+
+.sentiment-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.sentiment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.sentiment-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    transition: all 0.15s;
+}
+
+.sentiment-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--primary);
+}
+
 /* ===== Policy Timeline ===== */
 
 .policy-panel {
