@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_12_070424) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_12_090001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -163,6 +163,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_070424) do
     t.index ["sector_id"], name: "index_sub_industries_on_sector_id"
   end
 
+  create_table "trade_flow_data_points", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.bigint "trade_flow_id", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "value", precision: 15, scale: 4, null: false
+    t.index ["date"], name: "index_trade_flow_data_points_on_date"
+    t.index ["trade_flow_id", "date"], name: "index_trade_flow_data_points_on_trade_flow_id_and_date", unique: true
+    t.index ["trade_flow_id"], name: "index_trade_flow_data_points_on_trade_flow_id"
+  end
+
+  create_table "trade_flows", force: :cascade do |t|
+    t.bigint "country_id", null: false
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.string "flow_type", null: false
+    t.string "source"
+    t.string "unit", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "value", precision: 15, scale: 4, null: false
+    t.index ["country_id", "date"], name: "index_trade_flows_on_country_id_and_date"
+    t.index ["country_id", "flow_type", "date"], name: "index_trade_flows_on_country_id_and_flow_type_and_date"
+    t.index ["country_id"], name: "index_trade_flows_on_country_id"
+    t.index ["flow_type"], name: "index_trade_flows_on_flow_type"
+  end
+
   add_foreign_key "data_points", "indicators"
   add_foreign_key "debt_data_points", "debt_metrics"
   add_foreign_key "debt_metrics", "countries"
@@ -173,4 +199,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_12_070424) do
   add_foreign_key "structural_data_points", "structural_metrics"
   add_foreign_key "structural_metrics", "countries"
   add_foreign_key "sub_industries", "sectors"
+  add_foreign_key "trade_flow_data_points", "trade_flows"
+  add_foreign_key "trade_flows", "countries"
 end

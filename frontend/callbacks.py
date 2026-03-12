@@ -285,6 +285,26 @@ def register_callbacks(app):
         from components import build_structural_health
         return build_structural_health(structural_data, debt_data)
 
+    # ── Trade Flows & Supply Chain ──
+    @app.callback(
+        Output("trade-flows-container", "children"),
+        Input("nav-state", "data"),
+    )
+    def update_trade_flows(nav):
+        country_id = nav.get("country_id")
+        level = nav.get("level", "overview")
+        if not country_id or level == "indicators":
+            return html.Div()
+
+        trade_data = api_client.get_country_trade_flows(country_id)
+        if isinstance(trade_data, dict) and "error" in trade_data:
+            return html.Div()
+        if not isinstance(trade_data, dict):
+            return html.Div()
+
+        from components import build_trade_flows
+        return build_trade_flows(trade_data)
+
     # ── Anomaly Alerts ──
     # Visible at sectors and sub_industries; hidden at indicator drill-down
     @app.callback(

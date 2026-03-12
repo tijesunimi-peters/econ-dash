@@ -545,3 +545,6 @@ require_relative 'seeds/policy_decisions'
 # ── Phase 3: Structural Metrics and Debt Trends ──
 require_relative 'seeds/structural_metrics'
 require_relative 'seeds/debt_metrics'
+
+# ── Phase 4: Trade Flows ──
+require_relative 'seeds/trade_flows'

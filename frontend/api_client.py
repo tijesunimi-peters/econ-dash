@@ -106,3 +106,8 @@ def get_country_structural_forecast(country_id, periods=2, method="linear"):
     """Fetch forecast projections for structural metrics."""
     return _get(f"/countries/{country_id}/structural_forecast",
                 params={"periods": periods, "method": method})
+
+
+def get_country_trade_flows(country_id):
+    """Fetch trade flow metrics (exports, imports, FDI, supply chain) for a country."""
+    return _get(f"/countries/{country_id}/trade_flows")

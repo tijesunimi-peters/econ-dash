@@ -267,6 +267,37 @@ module Api
         }
       end
 
+      def trade_flows
+        country = Country.find(params[:id])
+        metrics = country.trade_flows.order(date: :desc).limit(30)
+
+        # Group by flow_type, keep most recent of each
+        grouped = metrics.group_by(&:flow_type).map { |flow_type, records|
+          latest = records.first
+          {
+            flow_type: flow_type,
+            metric_label: latest.metric_label,
+            category: latest.category,
+            value: latest.value,
+            unit: latest.unit,
+            date: latest.date,
+            alert_level: latest.alert_level,
+            source: latest.source,
+            data_source: latest.source == "world_bank" ? "World Bank" : "Seed Data",
+            last_updated: latest.updated_at,
+            trend_5year: latest.trend_5year,
+            historical: latest.historical_data(years: 5)
+          }
+        }
+
+        render json: {
+          country_id: country.id,
+          country_name: country.name,
+          trade_flows: grouped,
+          last_updated: metrics.first&.date
+        }
+      end
+
       private
 
       def country_json(country)

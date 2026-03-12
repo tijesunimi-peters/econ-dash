@@ -773,3 +773,40 @@ p, span, label {
     padding-top: 4px;
     border-top: 1px solid var(--border);
 }
+
+/* ── Trade Flows Panel ── */
+.trade-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.trade-section-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+
+.trade-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.trade-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    transition: all 0.15s;
+}
+
+.trade-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--primary);
+}

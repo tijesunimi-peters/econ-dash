@@ -1651,3 +1651,173 @@ def build_structural_health(structural_data, debt_data):
         }),
         html.Div(sections, style={"display": "flex", "flexDirection": "column", "gap": "16px"}),
     ], className="structural-panel")
+
+
+def build_trade_flows(trade_data):
+    """Trade flows & supply chain panel: exports, imports, FDI, supply chain risk."""
+    if not trade_data or "trade_flows" not in trade_data:
+        return html.Div()
+
+    trade_flows = trade_data.get("trade_flows", [])
+    if not trade_flows:
+        return html.Div()
+
+    # Group by category
+    by_category = {}
+    for flow in trade_flows:
+        cat = flow.get("category", "other")
+        if cat not in by_category:
+            by_category[cat] = []
+        by_category[cat].append(flow)
+
+    def build_flow_card(flow):
+        """Build single trade flow metric card."""
+        label = flow.get("metric_label", "")
+        value = flow.get("value", 0)
+        unit = flow.get("unit", "")
+        alert = flow.get("alert_level", "none")
+        trend = flow.get("trend_5year")
+        historical = flow.get("historical", [])
+
+        # Color coding
+        if alert == "critical":
+            border_color = COLORS["negative"]
+            value_color = COLORS["negative"]
+        elif alert == "warning":
+            border_color = COLORS["warning"]
+            value_color = COLORS["warning"]
+        else:
+            border_color = COLORS["border"]
+            value_color = COLORS["text"]
+
+        # Format value
+        try:
+            val_float = float(value)
+            if unit in ("%", "% of GDP"):
+                value_display = f"{val_float:.1f}%"
+            elif unit == "ratio":
+                value_display = f"{val_float:.2f}x"
+            elif unit == "index":
+                value_display = f"{val_float:.0f}"
+            else:
+                value_display = f"{val_float:.1f} {unit}"
+        except:
+            value_display = f"{value} {unit}"
+
+        # Trend arrow
+        trend_display = ""
+        if trend:
+            arrows = {"up": "↑", "down": "↓", "stable": "→"}
+            trend_display = arrows.get(trend, "→")
+
+        # Sparkline
+        sparkline = _build_mini_sparkline(historical) if historical else None
+
+        card_content = [
+            html.Div([
+                html.Span(label, style={"flex": "1"}),
+                html.Span(trend_display, style={
+                    "fontSize": "1.1rem", "marginLeft": "6px", "color": value_color
+                }) if trend_display else html.Span()
+            ], style={
+                "display": "flex", "alignItems": "center",
+                "fontSize": "0.72rem", "fontWeight": "600",
+                "marginBottom": "8px"
+            }),
+            html.Div(value_display, style={
+                "fontSize": "1.4rem", "fontWeight": "700", "color": value_color,
+                "fontFamily": "monospace", "marginBottom": "6px"
+            }),
+            sparkline or html.Div(),
+            html.Div([
+                html.Span(f"Updated: {flow.get('date', '')}", style={
+                    "fontSize": "0.65rem", "color": COLORS["text_muted"]
+                }),
+                html.Span(f"• {flow.get('data_source', 'Unknown')}", style={
+                    "fontSize": "0.65rem", "marginLeft": "4px", "color": COLORS["text_muted"]
+                })
+            ], style={"marginTop": "4px", "paddingTop": "4px"})
+        ]
+
+        return html.Div(card_content, className="trade-card", style={
+            "backgroundColor": "rgba(255,255,255,0.02)",
+            "border": f"1px solid {border_color}",
+            "borderRadius": "8px", "padding": "12px 14px",
+            "transition": "all 0.15s"
+        })
+
+    sections = []
+
+    # Trade Balance Section
+    if "balance" in by_category:
+        cards = [build_flow_card(f) for f in by_category["balance"]]
+        sections.append(html.Div([
+            html.Div("Trade Balance", className="trade-section-title", style={
+                "fontSize": "0.9rem", "fontWeight": "600", "marginBottom": "12px"
+            }),
+            html.Div(cards, className="trade-grid", style={
+                "display": "grid",
+                "gridTemplateColumns": "repeat(auto-fill, minmax(140px, 1fr))",
+                "gap": "12px"
+            })
+        ]))
+
+    # Imports/Exports Section
+    if "volumes" in by_category:
+        cards = [build_flow_card(f) for f in by_category["volumes"]]
+        sections.append(html.Div([
+            html.Div("Import/Export Flows", className="trade-section-title", style={
+                "fontSize": "0.9rem", "fontWeight": "600", "marginBottom": "12px"
+            }),
+            html.Div(cards, className="trade-grid", style={
+                "display": "grid",
+                "gridTemplateColumns": "repeat(auto-fill, minmax(140px, 1fr))",
+                "gap": "12px"
+            })
+        ]))
+
+    # Investment Section
+    if "investment" in by_category:
+        cards = [build_flow_card(f) for f in by_category["investment"]]
+        sections.append(html.Div([
+            html.Div("Foreign Investment", className="trade-section-title", style={
+                "fontSize": "0.9rem", "fontWeight": "600", "marginBottom": "12px"
+            }),
+            html.Div(cards, className="trade-grid", style={
+                "display": "grid",
+                "gridTemplateColumns": "repeat(auto-fill, minmax(140px, 1fr))",
+                "gap": "12px"
+            })
+        ]))
+
+    # Supply Chain Risk Section
+    if "risk" in by_category or "vulnerability" in by_category or "resilience" in by_category:
+        risk_cards = [build_flow_card(f) for f in by_category.get("risk", [])]
+        vuln_cards = [build_flow_card(f) for f in by_category.get("vulnerability", [])]
+        resilience_cards = [build_flow_card(f) for f in by_category.get("resilience", [])]
+        cards = risk_cards + vuln_cards + resilience_cards
+        sections.append(html.Div([
+            html.Div("Supply Chain", className="trade-section-title", style={
+                "fontSize": "0.9rem", "fontWeight": "600", "marginBottom": "12px"
+            }),
+            html.Div(cards, className="trade-grid", style={
+                "display": "grid",
+                "gridTemplateColumns": "repeat(auto-fill, minmax(140px, 1fr))",
+                "gap": "12px"
+            })
+        ]))
+
+    last_updated = trade_data.get("last_updated", "")
+
+    return html.Div([
+        html.Div([
+            html.H4("Trade Flows & Supply Chain", className="section-title",
+                   style={"fontSize": "1rem", "marginBottom": "0", "borderBottom": "none"}),
+            html.Span(f"Updated: {last_updated}" if last_updated else "",
+                     style={"fontSize": "0.7rem", "color": COLORS["text_muted"]})
+        ], style={
+            "display": "flex", "alignItems": "center",
+            "justifyContent": "space-between", "marginBottom": "14px"
+        }),
+        html.Div(sections, style={"display": "flex", "flexDirection": "column", "gap": "16px"})
+    ], className="trade-panel")
