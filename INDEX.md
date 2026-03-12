@@ -25,6 +25,7 @@
 - **[PLAN-COUNTRIES.md](PLAN-COUNTRIES.md)** — Adding JP, AU, DE design
 - **[PLAN.md](PLAN.md)** — Original architecture plan
 - **[PLAN-V2.md](PLAN-V2.md)** — Phase-based implementation roadmap
+- **[STRATEGIC_CONTEXT_ROADMAP.md](STRATEGIC_CONTEXT_ROADMAP.md)** — 8-week plan to add strategic context (policy, sentiment, structural, trade)
 
 ---
 
