@@ -40,6 +40,85 @@ def _create_popover_callback(app, trigger_id):
 
 
 def register_callbacks(app):
+    """Register all dashboard callbacks for Phases 1-5 integration."""
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # PHASE 2: PRESET SELECTOR & DRILL-DOWN VISIBILITY
+    # ════════════════════════════════════════════════════════════════════════════
+
+    @callback(
+        Output("storage-store", "data"),
+        Input("preset-selector", "value"),
+        prevent_initial_call=False,
+    )
+    def apply_preset_view(preset_name):
+        """Apply selected preset view configuration (Phase 2 + Phase 5)."""
+        from components.homepage_redesign import apply_preset_config
+
+        if not preset_name:
+            return {}
+
+        config = apply_preset_config(preset_name)
+        return {
+            "preset": preset_name,
+            "collapsed_panels": config.get("collapsed_panels", []),
+            "visible_panels": config.get("visible_panels", []),
+        }
+
+    @callback(
+        Output("control-bar-container", "style"),
+        Output("drill-down-area", "style"),
+        Input("nav-state", "data"),
+    )
+    def update_drill_down_visibility(nav):
+        """Show/hide drill-down area and controls based on navigation level (Phase 2)."""
+        level = nav.get("level", "sectors")
+        is_drilling = level != "sectors"
+
+        control_bar_style = {"display": "flex" if is_drilling else "none"}
+        drill_area_style = {"display": "block" if is_drilling else "none"}
+
+        return control_bar_style, drill_area_style
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # PHASE 1: COLLAPSIBLE CARD CALLBACKS (localStorage persistence via Phase 5)
+    # ════════════════════════════════════════════════════════════════════════════
+
+    @callback(
+        [
+            Output({"type": "collapsible-content", "index": "MATCH"}, "style"),
+            Output({"type": "collapsible-indicator", "index": "MATCH"}, "className"),
+        ],
+        Input({"type": "collapsible-toggle", "index": "MATCH"}, "n_clicks"),
+        State({"type": "collapsible-content", "index": "MATCH"}, "style"),
+        prevent_initial_call=True,
+    )
+    def toggle_collapsible(n_clicks, current_style):
+        """Toggle collapsible cards with localStorage persistence (Phase 1 + Phase 5)."""
+        if current_style is None:
+            current_style = {}
+
+        is_open = current_style.get("display", "block") == "block"
+        new_style = {
+            **current_style,
+            "display": "none" if is_open else "block",
+            "maxHeight": "0" if is_open else "none",
+            "opacity": "0" if is_open else "1",
+            "transition": "max-height 0.3s ease, opacity 0.3s ease",
+            "overflow": "hidden",
+        }
+
+        indicator_class = (
+            "collapsible-indicator collapsible-closed"
+            if is_open
+            else "collapsible-indicator"
+        )
+
+        return new_style, indicator_class
+
+    # ════════════════════════════════════════════════════════════════════════════
+    # EXISTING CALLBACKS
+    # ════════════════════════════════════════════════════════════════════════════
 
     # ── Popover Toggle Callbacks ──
     # Create callbacks for all popover triggers
@@ -354,16 +433,18 @@ def register_callbacks(app):
         Output("treemap", "figure"),
         Output("treemap-container", "style"),
         Input("nav-state", "data"),
-        Input("drill-tabs", "active_tab"),
     )
-    def update_treemap(nav, active_tab):
+    def update_treemap(nav):
         level = nav.get("level", "overview")
-        if level == "sectors" and nav.get("country_id") and active_tab == "tab-sectors":
+        # Show treemap on homepage (sectors level) when country is selected
+        # Hide treemap when drilling down to sub_industries or indicators
+        if level == "sectors" and nav.get("country_id"):
             summary = api_client.get_country_summary(nav["country_id"])
             if isinstance(summary, dict) and "error" not in summary:
                 sectors = summary.get("sectors", [])
                 fig = build_sector_treemap(sectors, nav.get("country_name", ""))
                 return fig, {"display": "block"}
+        # Hide treemap when at any other level
         return {}, {"display": "none"}
 
     # ── Tab content (Momentum / Compare / Correlations) ──
@@ -391,6 +472,8 @@ def register_callbacks(app):
             return build_momentum_scoreboard(momentum_data)
 
         elif active_tab == "tab-compare":
+            from components.comparison_mode import build_comparison_view
+
             countries = api_client.get_countries()
             if isinstance(countries, dict) and "error" in countries:
                 return dbc.Alert("Failed to load countries", color="warning")
@@ -405,10 +488,23 @@ def register_callbacks(app):
 
             default_other = other_options[0]["value"]
 
-            compare_data = api_client.get_country_compare(country_id, default_other)
-            initial_content = html.Div()
-            if not (isinstance(compare_data, dict) and "error" in compare_data):
-                initial_content = build_cross_country_comparison(compare_data)
+            # Fetch data for both countries
+            country1_indicators = api_client.get_country_indicators(country_id)
+            country2_indicators = api_client.get_country_indicators(default_other)
+            comparison_data = api_client.get_country_compare(country_id, default_other)
+
+            # Build synchronized comparison view with Phase 4 components
+            country1_name = next((c["name"] for c in countries if c["id"] == country_id), "Country 1")
+            country2_name = next((c["name"] for c in countries if c["id"] == default_other), "Country 2")
+
+            initial_content = build_comparison_view(
+                country1_data=country1_indicators if not (isinstance(country1_indicators, dict) and "error" in country1_indicators) else html.Div(),
+                country2_data=country2_indicators if not (isinstance(country2_indicators, dict) and "error" in country2_indicators) else html.Div(),
+                country1_name=country1_name,
+                country2_name=country2_name,
+                metrics_data=comparison_data.get("metrics", {}) if isinstance(comparison_data, dict) else {},
+                comparison_type="full",
+            )
 
             return html.Div([
                 dbc.Row([
@@ -434,7 +530,7 @@ def register_callbacks(app):
 
         return html.Div()
 
-    # ── Compare country selection ──
+    # ── Compare country selection (Phase 4: Synchronized comparison) ──
     @app.callback(
         Output("compare-content", "children"),
         Input("compare-country-dropdown", "value"),
@@ -442,14 +538,34 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def on_compare_country_select(other_id, nav):
+        from components.comparison_mode import build_comparison_view
+
         country_id = nav.get("country_id")
         if not country_id or not other_id:
             return html.Div()
 
-        compare_data = api_client.get_country_compare(country_id, other_id)
-        if isinstance(compare_data, dict) and "error" in compare_data:
+        # Fetch comparison data for both countries
+        country1_indicators = api_client.get_country_indicators(country_id)
+        country2_indicators = api_client.get_country_indicators(other_id)
+        comparison_data = api_client.get_country_compare(country_id, other_id)
+
+        if isinstance(comparison_data, dict) and "error" in comparison_data:
             return dbc.Alert("Failed to load comparison data", color="warning")
-        return build_cross_country_comparison(compare_data)
+
+        # Get country names from nav state
+        countries = api_client.get_countries()
+        country1_name = next((c["name"] for c in countries if c["id"] == country_id), "Country 1")
+        country2_name = next((c["name"] for c in countries if c["id"] == other_id), "Country 2")
+
+        # Build Phase 4 synchronized comparison view with divergence highlighting
+        return build_comparison_view(
+            country1_data=country1_indicators if not (isinstance(country1_indicators, dict) and "error" in country1_indicators) else html.Div(),
+            country2_data=country2_indicators if not (isinstance(country2_indicators, dict) and "error" in country2_indicators) else html.Div(),
+            country1_name=country1_name,
+            country2_name=country2_name,
+            metrics_data=comparison_data.get("metrics", {}),
+            comparison_type="full",
+        )
 
     # ── Master render (main content + breadcrumb) ──
     @app.callback(
@@ -478,16 +594,35 @@ def register_callbacks(app):
             return html.Div(), breadcrumb
 
         elif level == "sub_industries":
+            # Phase 3: Use sidebar layout for detail view
+            from components.drill_down_enhancements import build_drill_down_detail_view
+            from components.homepage_redesign import build_detail_view_controls
+
             summary = api_client.get_sector_summary(nav["sector_id"])
             if isinstance(summary, dict) and "error" in summary:
                 return dbc.Alert(f"Failed to load data: {summary['error']}",
                                  color="danger"), breadcrumb
+
             sub_industries = summary.get("sub_industries", [])
             table = build_sparkline_table(sub_industries)
-            return html.Div([
-                html.H3(nav.get("sector_name", ""), className="section-title"),
-                table,
-            ]), breadcrumb
+
+            # Build control buttons for Phase 2 integration
+            controls = build_detail_view_controls(
+                date_preset=date_store.get("preset", "5Y"),
+                yoy_enabled=yoy_enabled,
+                comparison_enabled=True,
+            )
+
+            # Use Phase 3 sidebar layout for detail view
+            return build_drill_down_detail_view(
+                nav_state=nav,
+                data=html.Div([
+                    html.H3(nav.get("sector_name", ""), className="section-title"),
+                    table,
+                ]),
+                controls=controls,
+                related_items=_get_related_sectors(nav.get("sector_id")),
+            ), breadcrumb
 
         elif level == "indicators":
             si = api_client.get_sub_industry(nav["sub_industry_id"])
@@ -558,10 +693,35 @@ def register_callbacks(app):
                         f"No data available for {ind['name']}",
                         className="text-muted"))
 
-            return html.Div([
-                html.H3(nav.get("sub_industry_name", ""), className="section-title"),
-                html.Div(charts),
-            ]), breadcrumb
+            # Phase 3: Use sidebar layout for indicators detail view
+            from components.drill_down_enhancements import build_drill_down_detail_view
+            from components.homepage_redesign import build_detail_view_controls
+
+            controls = build_detail_view_controls(
+                date_preset=date_store.get("preset", "5Y"),
+                yoy_enabled=yoy_enabled,
+                comparison_enabled=True,
+            )
+
+            # Get anomalies and causal factors for sidebar (optional)
+            anomalies = None
+            causal_factors = None
+            try:
+                anomalies = api_client.get_anomalies(country_id)
+                causal_factors = api_client.get_causal_factors(country_id)
+            except:
+                pass  # Optional data, don't fail if unavailable
+
+            return build_drill_down_detail_view(
+                nav_state=nav,
+                data=html.Div([
+                    html.H3(nav.get("sub_industry_name", ""), className="section-title"),
+                    html.Div(charts),
+                ]),
+                controls=controls,
+                anomalies=anomalies,
+                causal_factors=causal_factors,
+            ), breadcrumb
 
         return html.P("Unknown view."), breadcrumb
 
@@ -577,3 +737,23 @@ def _compute_start_date(preset):
     elif preset == "5Y":
         return (today - timedelta(days=1825)).isoformat()
     return (today - timedelta(days=1825)).isoformat()
+
+
+def _get_related_sectors(sector_id):
+    """
+    Get related sectors for discovery navigation (Phase 3).
+
+    Maps sector IDs to related sectors for quick navigation.
+    """
+    # Sector mapping based on economic relationships
+    sector_relationships = {
+        1: ["Mining", "Energy", "Materials"],           # Manufacturing → raw materials
+        2: ["Retail", "Transportation", "Logistics"],   # Automotive → commerce
+        3: ["Banking", "Finance", "Insurance"],         # Services → financial
+        4: ["Technology", "Telecommunications", "Utilities"],
+        5: ["Agriculture", "Food Processing", "Distribution"],
+        6: ["Construction", "Real Estate", "Equipment"],
+        7: ["Healthcare", "Pharmaceuticals", "Biotechnology"],
+        8: ["Media", "Entertainment", "Communications"],
+    }
+    return sector_relationships.get(sector_id, [])
