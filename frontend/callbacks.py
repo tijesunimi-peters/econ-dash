@@ -595,8 +595,7 @@ def register_callbacks(app):
 
         elif level == "sub_industries":
             # Phase 3: Use sidebar layout for detail view
-            from components.drill_down_enhancements import build_drill_down_detail_view
-            from components.homepage_redesign import build_detail_view_controls
+            from components.drill_down_enhancements import build_drill_down_detail_view, build_detail_view_controls
 
             summary = api_client.get_sector_summary(nav["sector_id"])
             if isinstance(summary, dict) and "error" in summary:
@@ -694,8 +693,7 @@ def register_callbacks(app):
                         className="text-muted"))
 
             # Phase 3: Use sidebar layout for indicators detail view
-            from components.drill_down_enhancements import build_drill_down_detail_view
-            from components.homepage_redesign import build_detail_view_controls
+            from components.drill_down_enhancements import build_drill_down_detail_view, build_detail_view_controls
 
             controls = build_detail_view_controls(
                 date_preset=date_store.get("preset", "5Y"),
