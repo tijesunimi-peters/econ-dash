@@ -115,8 +115,8 @@ def build_redesigned_homepage(
 
         # ── Row 1: Intelligence Panel (1/3) + Sector Treemap (2/3) ──
         dashboard_grid([
-            html.Div(intelligence_container, style={"gridColumn": "span 1"}),
-            html.Div(treemap_container, style={"gridColumn": "span 2"}),
+            intelligence_container,
+            treemap_container,
         ], layout="1-2"),
 
         # ── Row 2: Quick Stats ──
