@@ -40,6 +40,8 @@ def build_sidebar_layout(
         )
     """
 
+    # Ensure sidebar_width is an integer
+    sidebar_width = int(sidebar_width) if isinstance(sidebar_width, str) else sidebar_width
     main_width = 100 - sidebar_width
 
     sidebar_style = {
