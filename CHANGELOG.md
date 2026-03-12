@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-03-12 (continued) — API Documentation & Cycle Phase Filtering
+
+### Added
+- **Cycle Phase Filtering API** — `GET /api/v1/countries/by_cycle_phase/:phase`
+  - Filter countries by business cycle phase (expansion, peak, contraction, trough)
+  - Returns countries with cycle position data and sector recommendations
+  - Enable cross-country cycle synchronization analysis
+- **Comprehensive API Documentation** — `API_ENDPOINTS.md`
+  - Full reference for all 20+ REST endpoints
+  - Request/response examples for each endpoint
+  - Parameter documentation and error handling
+  - Caching policies (1-hour cache for expensive operations)
+- **Project Memory** — Persistent notes on architecture, patterns, and debugging insights
+
+### Fixed
+- Committed `by_cycle_phase` controller action and collection route
+
 ## 2026-03-12 — Causal Factors Feature
 
 ### Added
