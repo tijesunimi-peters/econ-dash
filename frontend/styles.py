@@ -73,11 +73,15 @@ RECESSIONS = [
 
 
 def trend_color(value):
+    """Return high-contrast color for trend values."""
     if value > 0:
-        return COLORS["positive"]
+        # Brighter green for better contrast
+        return "#00ff88"
     elif value < 0:
-        return COLORS["negative"]
-    return COLORS["neutral"]
+        # Brighter red for better contrast
+        return "#ff6868"
+    # Neutral light gray
+    return "#c0c6d9"
 
 
 def trend_arrow(value):

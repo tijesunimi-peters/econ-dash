@@ -196,73 +196,86 @@ def register_callbacks(app):
             "sub_industry_name": None,
         }
 
-    # ── Sunburst click -> drill into sector or indicators + show trends ──
+    # ── Initialize default trends on page load ──
     @app.callback(
-        Output("nav-state", "data", allow_duplicate=True),
         Output("trend-detail-container", "children"),
         Output("trend-detail-container", "style"),
+        Input("sectors-store", "data"),
+        State("nav-state", "data"),
+        prevent_initial_call=False,  # Allow initial call to show default sector trends
+    )
+    def init_default_trends(sectors_store, nav):
+        """Show default sector trends when sectors data is loaded."""
+        sectors_data = sectors_store.get("sectors", [])
+        if not sectors_data:
+            return html.Div(), {"display": "none"}
+
+        # Show first sector's trends by default
+        first_sector = sectors_data[0]
+        try:
+            trend_children = build_sector_trend_detail(
+                first_sector['name'],
+                first_sector.get('sub_industries', [])
+            )
+            return trend_children, {"display": "block"}
+        except Exception as e:
+            return html.Div(f"Error loading trends: {str(e)}"), {"display": "block"}
+
+    # ── Sunburst click -> update trends on sector click, navigate on sub-industry click ──
+    @app.callback(
+        Output("nav-state", "data", allow_duplicate=True),
+        Output("trend-detail-container", "children", allow_duplicate=True),
+        Output("trend-detail-container", "style", allow_duplicate=True),
         Input("treemap", "clickData"),
         State("nav-state", "data"),
         State("sectors-store", "data"),
         prevent_initial_call=True,
     )
     def on_sunburst_click(click_data, nav, sectors_store):
-        print(f"\n🎯 SUNBURST CLICK DETECTED")
         if not click_data or not click_data.get("points"):
-            print(f"❌ No click data or points")
-            return dash.no_update, html.Div(), {"display": "none"}
+            return dash.no_update, dash.no_update, dash.no_update
+
         point = click_data["points"][0]
         customdata = point.get("customdata")
-        depth = point.get("depth", 0)
         label = point.get("label", "")
-        print(f"🎯 Click Details: customdata={customdata}, depth={depth}, label={label}")
+        parent = point.get("parent", "")
 
         if not customdata or not label:
-            return dash.no_update, html.Div(), {"display": "none"}
+            # Don't clear trends if invalid click - keep existing state
+            return dash.no_update, dash.no_update, dash.no_update
 
-        # Depth 1 = sector clicked -> show trend detail
-        if depth == 1:
-            print(f"\n🔍 DEBUG: Sector clicked - ID={customdata}, Label={label}")
+        sectors_data = sectors_store.get("sectors", [])
+
+        # Sector click = parent is empty string (root)
+        # Sub-industry click = parent is a sector name
+        if parent == "":
+            # This is a sector (parent is root) -> update trend panel
             sector_id = customdata
-            # Find sector in store and build trend detail
-            sectors_data = sectors_store.get("sectors", [])
-            print(f"🔍 DEBUG: Sectors in store: {len(sectors_data)}")
-            sector = next((s for s in sectors_data if str(s["id"]) == sector_id), None)
+            sector = next((s for s in sectors_data if str(s.get("id")) == str(sector_id)), None)
 
             trend_content = html.Div()
             trend_style = {"display": "none"}
 
             if sector:
-                print(f"✅ Sector found: {sector['name']}, sub-industries: {len(sector.get('sub_industries', []))}")
                 try:
                     trend_content = build_sector_trend_detail(label, sector.get("sub_industries", []))
-                    trend_style = {"display": "block", "marginTop": "16px"}
-                    print(f"✅ Trend detail built successfully")
+                    trend_style = {"display": "block"}
                 except Exception as e:
-                    import traceback
-                    print(f"❌ Error building trend detail: {e}")
-                    traceback.print_exc()
-                    # Return empty div on error
                     trend_content = html.Div(f"Error: {str(e)}")
-                    trend_style = {"display": "block", "marginTop": "16px"}
-            else:
-                print(f"❌ Sector {sector_id} not found in store")
-                print(f"❌ Available sectors: {[s['id'] for s in sectors_data]}")
-                trend_content = html.Div("Sector not found in store")
-                trend_style = {"display": "block", "marginTop": "16px"}
+                    trend_style = {"display": "block"}
 
-            nav_update = {**nav, "level": "sub_industries", "sector_id": sector_id,
-                         "sector_name": label, "sub_industry_id": None, "sub_industry_name": None}
+            # Keep level at "sectors" - don't navigate away
+            nav_update = {**nav, "sector_id": sector_id, "sector_name": label}
             return nav_update, trend_content, trend_style
 
-        # Depth 2 = sub-industry clicked -> navigate to indicators (no trend detail)
-        elif depth == 2:
+        else:
+            # This is a sub-industry (parent is sector name) -> navigate to indicators
             sub_industry_id = customdata
             nav_update = {**nav, "level": "indicators", "sub_industry_id": sub_industry_id,
                          "sub_industry_name": label}
             return nav_update, html.Div(), {"display": "none"}
 
-        return dash.no_update, html.Div(), {"display": "none"}
+        return dash.no_update, dash.no_update, dash.no_update
 
     # ── Sub-industry row click -> drill into indicators ──
     @app.callback(
@@ -505,15 +518,21 @@ def register_callbacks(app):
         Output("treemap-container", "style"),
         Output("sectors-store", "data"),
         Input("nav-state", "data"),
+        State("sectors-store", "data"),
         prevent_initial_call=False,  # Allow initial call to populate sunburst on page load
     )
-    def update_treemap(nav):
+    def update_treemap(nav, sectors_store):
         level = nav.get("level", "overview")
-        print(f"\n📊 update_treemap called: level={level}, country_id={nav.get('country_id')}")
+        country_id = nav.get("country_id")
+
+        # Only rebuild sunburst if country changed (not if just sector selection changed)
+        # Check if we already have sectors data for this country
+        current_sectors = sectors_store.get("sectors", [])
+        cached_country_id = sectors_store.get("country_id")
+
         # Show sunburst on homepage (sectors level) when country is selected
         # Hide sunburst when drilling down to sub_industries or indicators
-        if level == "sectors" and nav.get("country_id"):
-            print(f"✅ Building sunburst for country {nav.get('country_id')}")
+        if level == "sectors" and country_id and (not cached_country_id or cached_country_id != country_id):
             summary = api_client.get_country_summary(nav["country_id"])
             if isinstance(summary, dict) and "error" not in summary:
                 sectors = summary.get("sectors", [])
@@ -532,8 +551,14 @@ def register_callbacks(app):
                     })
 
                 fig = build_sector_sunburst(sectors_with_subitems, nav.get("country_name", ""))
-                # Store sectors data for trend callbacks
-                return fig, {"display": "block"}, {"sectors": sectors_with_subitems}
+
+                # Store sectors data for trend callbacks (include country_id to detect when to rebuild)
+                return fig, {"display": "block"}, {"sectors": sectors_with_subitems, "country_id": country_id}
+
+        # At sectors level but already cached -> don't rebuild sunburst, preserve current state
+        if level == "sectors" and country_id and cached_country_id == country_id:
+            return dash.no_update, dash.no_update, dash.no_update
+
         # Hide sunburst when at any other level
         return {}, {"display": "none"}, {}
 

@@ -110,23 +110,28 @@ def build_redesigned_homepage(
             intelligence_container,
         ], layout="1-col"),
 
-        # ── Row 2: Sector Treemap (Full Width) ──
-        dashboard_grid([
-            treemap_container,
-        ], layout="1-col"),
-
-        # ── Row 2.5: Sector Trend Detail Panel (placeholder - will be populated by callback) ──
-        html.Div(
-            id="trend-detail-container",
-            style={
-                "display": "none",
-                "marginTop": "16px",
-                "padding": "16px",
-                "backgroundColor": "#1a1d29",
-                "borderRadius": "8px",
-                "border": "1px solid #2a2d3a",
-            }
-        ),
+        # ── Row 2: Sector Treemap + Trend Detail (Side-by-side 2-column layout) ──
+        dbc.Row([
+            dbc.Col([
+                treemap_container,
+            ], lg=7, width=12, className="mb-3"),
+            dbc.Col([
+                html.Div(
+                    [
+                        html.H5("Sub-Industry Trends", style={"marginBottom": "16px"}),
+                        html.Div(id="trend-detail-container")
+                    ],
+                    style={
+                        "padding": "16px",
+                        "backgroundColor": "#1a1d29",
+                        "borderRadius": "8px",
+                        "border": "1px solid #2a2d3a",
+                        "maxHeight": "600px",
+                        "overflowY": "auto"
+                    }
+                )
+            ], lg=5, width=12, className="mb-3"),
+        ], style={"marginBottom": "16px"}),
 
         # ── Row 3: Quick Stats ──
         _build_quick_stats_row(),
