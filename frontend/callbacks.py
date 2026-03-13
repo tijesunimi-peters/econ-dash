@@ -8,6 +8,8 @@ from styles import COLORS
 from components import (
     build_sector_treemap,
     build_sector_sunburst,
+    build_sunburst_with_trends,
+    build_sector_trend_detail,
     build_breadcrumb,
     build_sparkline_table,
     build_indicator_chart,
@@ -69,7 +71,9 @@ def register_callbacks(app):
     @callback(
         Output("control-bar-container", "style"),
         Output("drill-down-area", "style"),
+        Output("trend-detail-container", "style", allow_duplicate=True),
         Input("nav-state", "data"),
+        prevent_initial_call=True,
     )
     def update_drill_down_visibility(nav):
         """Show/hide drill-down area and controls based on navigation level (Phase 2)."""
@@ -78,8 +82,10 @@ def register_callbacks(app):
 
         control_bar_style = {"display": "flex" if is_drilling else "none"}
         drill_area_style = {"display": "block" if is_drilling else "none"}
+        # Hide trend detail when navigating away from sectors level
+        trend_style = {"display": "none"}
 
-        return control_bar_style, drill_area_style
+        return control_bar_style, drill_area_style, trend_style
 
     # ════════════════════════════════════════════════════════════════════════════
     # PHASE 1: COLLAPSIBLE CARD CALLBACKS (localStorage persistence via Phase 5)
@@ -176,37 +182,56 @@ def register_callbacks(app):
             "sub_industry_name": None,
         }
 
-    # ── Sunburst click -> drill into sector or indicators ──
+    # ── Sunburst click -> drill into sector or indicators + show trends ──
     @app.callback(
         Output("nav-state", "data", allow_duplicate=True),
+        Output("trend-detail-container", "children"),
+        Output("trend-detail-container", "style"),
         Input("treemap", "clickData"),
         State("nav-state", "data"),
+        State("sectors-store", "data"),
         prevent_initial_call=True,
     )
-    def on_sunburst_click(click_data, nav):
+    def on_sunburst_click(click_data, nav, sectors_store):
         if not click_data or not click_data.get("points"):
-            return dash.no_update
+            return dash.no_update, html.Div(), {"display": "none"}
         point = click_data["points"][0]
         customdata = point.get("customdata")
         depth = point.get("depth", 0)
         label = point.get("label", "")
 
         if not customdata or not label:
-            return dash.no_update
+            return dash.no_update, html.Div(), {"display": "none"}
 
-        # Depth 1 = sector clicked
+        # Depth 1 = sector clicked -> show trend detail
         if depth == 1:
             sector_id = customdata
-            return {**nav, "level": "sub_industries", "sector_id": sector_id,
-                    "sector_name": label, "sub_industry_id": None, "sub_industry_name": None}
+            # Find sector in store and build trend detail
+            sectors_data = sectors_store.get("sectors", [])
+            sector = next((s for s in sectors_data if str(s["id"]) == sector_id), None)
 
-        # Depth 2 = sub-industry clicked -> navigate to indicators
+            trend_content = html.Div()
+            trend_style = {"display": "none"}
+
+            if sector:
+                try:
+                    trend_content = build_sector_trend_detail(label, sector.get("sub_industries", []))
+                    trend_style = {"display": "block", "marginTop": "16px"}
+                except:
+                    pass  # Fallback to empty if trend building fails
+
+            nav_update = {**nav, "level": "sub_industries", "sector_id": sector_id,
+                         "sector_name": label, "sub_industry_id": None, "sub_industry_name": None}
+            return nav_update, trend_content, trend_style
+
+        # Depth 2 = sub-industry clicked -> navigate to indicators (no trend detail)
         elif depth == 2:
             sub_industry_id = customdata
-            return {**nav, "level": "indicators", "sub_industry_id": sub_industry_id,
-                    "sub_industry_name": label}
+            nav_update = {**nav, "level": "indicators", "sub_industry_id": sub_industry_id,
+                         "sub_industry_name": label}
+            return nav_update, html.Div(), {"display": "none"}
 
-        return dash.no_update
+        return dash.no_update, html.Div(), {"display": "none"}
 
     # ── Sub-industry row click -> drill into indicators ──
     @app.callback(
@@ -447,6 +472,7 @@ def register_callbacks(app):
     @app.callback(
         Output("treemap", "figure"),
         Output("treemap-container", "style"),
+        Output("sectors-store", "data"),
         Input("nav-state", "data"),
     )
     def update_treemap(nav):
@@ -472,9 +498,10 @@ def register_callbacks(app):
                     })
 
                 fig = build_sector_sunburst(sectors_with_subitems, nav.get("country_name", ""))
-                return fig, {"display": "block"}
+                # Store sectors data for trend callbacks
+                return fig, {"display": "block"}, {"sectors": sectors_with_subitems}
         # Hide sunburst when at any other level
-        return {}, {"display": "none"}
+        return {}, {"display": "none"}, {}
 
     # ── Tab content (Momentum / Compare / Correlations) ──
     @app.callback(

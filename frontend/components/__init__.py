@@ -1873,3 +1873,9 @@ from .comparison_mode import (
 from .sunburst_sector_viz import (
     build_sector_sunburst,
 )
+
+# Sunburst with Trend Lines
+from .sunburst_with_trends import (
+    build_sunburst_with_trends,
+    build_sector_trend_detail,
+)

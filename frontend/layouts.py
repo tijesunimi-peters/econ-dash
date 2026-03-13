@@ -33,7 +33,7 @@ def build_layout():
         Dash layout component
     """
 
-    return build_redesigned_homepage(
+    homepage = build_redesigned_homepage(
         # Top-level panels (populated by callbacks)
         intelligence_container=html.Div(id="intelligence-panel-container"),
         sentiment_container=html.Div(id="sentiment-panel-container"),
@@ -107,3 +107,14 @@ def build_layout():
             data={},
         ),
     )
+
+    # Wrap homepage with additional stores
+    return html.Div([
+        homepage,
+        # Store for sectors data (populated by update_treemap callback)
+        dcc.Store(id="sectors-store", data={}),
+        # Store for navigation state
+        dcc.Store(id="nav-state", data={"level": "overview"}),
+        # Store for date range preferences
+        dcc.Store(id="date-range-store", data={"preset": "5Y"}),
+    ])

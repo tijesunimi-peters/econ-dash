@@ -39,15 +39,15 @@ def build_redesigned_homepage(
     policy_container,
     trade_flows_container,
     treemap_container,
-    country_dropdown,
-    anomaly_container,
-    breadcrumb_container,
-    date_controls,
-    yoy_toggle,
-    drill_tabs_container,
-    drill_tab_content,
-    main_content,
-    storage_store,
+    country_dropdown=None,
+    anomaly_container=None,
+    breadcrumb_container=None,
+    date_controls=None,
+    yoy_toggle=None,
+    drill_tabs_container=None,
+    drill_tab_content=None,
+    main_content=None,
+    storage_store=None,
 ):
     """
     Build the redesigned homepage with responsive grid layout and collapsible panels.
@@ -113,6 +113,11 @@ def build_redesigned_homepage(
         # ── Row 2: Sector Treemap (Full Width) ──
         dashboard_grid([
             treemap_container,
+        ], layout="1-col"),
+
+        # ── Row 2.5: Sector Trend Detail Panel (placeholder - will be populated by callback) ──
+        dashboard_grid([
+            html.Div(id="trend-detail-container"),
         ], layout="1-col"),
 
         # ── Row 3: Quick Stats ──
