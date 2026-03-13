@@ -207,12 +207,15 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def on_sunburst_click(click_data, nav, sectors_store):
+        print(f"\n🎯 SUNBURST CLICK DETECTED")
         if not click_data or not click_data.get("points"):
+            print(f"❌ No click data or points")
             return dash.no_update, html.Div(), {"display": "none"}
         point = click_data["points"][0]
         customdata = point.get("customdata")
         depth = point.get("depth", 0)
         label = point.get("label", "")
+        print(f"🎯 Click Details: customdata={customdata}, depth={depth}, label={label}")
 
         if not customdata or not label:
             return dash.no_update, html.Div(), {"display": "none"}
@@ -502,12 +505,15 @@ def register_callbacks(app):
         Output("treemap-container", "style"),
         Output("sectors-store", "data"),
         Input("nav-state", "data"),
+        prevent_initial_call=False,  # Allow initial call to populate sunburst on page load
     )
     def update_treemap(nav):
         level = nav.get("level", "overview")
+        print(f"\n📊 update_treemap called: level={level}, country_id={nav.get('country_id')}")
         # Show sunburst on homepage (sectors level) when country is selected
         # Hide sunburst when drilling down to sub_industries or indicators
         if level == "sectors" and nav.get("country_id"):
+            print(f"✅ Building sunburst for country {nav.get('country_id')}")
             summary = api_client.get_country_summary(nav["country_id"])
             if isinstance(summary, dict) and "error" not in summary:
                 sectors = summary.get("sectors", [])

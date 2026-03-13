@@ -810,3 +810,16 @@ p, span, label {
     background: rgba(255, 255, 255, 0.04);
     border-color: var(--primary);
 }
+
+/* Trend detail container - make it obvious when it appears */
+#trend-detail-container {
+  position: relative;
+  z-index: 100;
+}
+
+#trend-detail-container[style*="display: block"] {
+  background-color: #ff5757 !important;
+  padding: 20px !important;
+  border: 3px solid #ffff00 !important;
+  margin: 20px 0 !important;
+}
