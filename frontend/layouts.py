@@ -113,8 +113,16 @@ def build_layout():
         homepage,
         # Store for sectors data (populated by update_treemap callback)
         dcc.Store(id="sectors-store", data={}),
-        # Store for navigation state
-        dcc.Store(id="nav-state", data={"level": "overview"}),
+        # Store for navigation state (initialize with US selected)
+        dcc.Store(id="nav-state", data={
+            "level": "sectors",
+            "country_id": 1,
+            "country_name": "United States",
+            "sector_id": None,
+            "sector_name": None,
+            "sub_industry_id": None,
+            "sub_industry_name": None,
+        }),
         # Store for date range preferences
         dcc.Store(id="date-range-store", data={"preset": "5Y"}),
     ])
