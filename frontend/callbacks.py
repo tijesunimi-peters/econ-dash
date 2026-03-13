@@ -71,7 +71,6 @@ def register_callbacks(app):
     @callback(
         Output("control-bar-container", "style"),
         Output("drill-down-area", "style"),
-        Output("trend-detail-container", "style", allow_duplicate=True),
         Input("nav-state", "data"),
         prevent_initial_call=True,
     )
@@ -82,10 +81,25 @@ def register_callbacks(app):
 
         control_bar_style = {"display": "flex" if is_drilling else "none"}
         drill_area_style = {"display": "block" if is_drilling else "none"}
-        # Hide trend detail when navigating away from sectors level
-        trend_style = {"display": "none"}
 
-        return control_bar_style, drill_area_style, trend_style
+        return control_bar_style, drill_area_style
+
+    # Hide trend panel when drilling to indicators level (but not when at sectors or sub_industries)
+    @app.callback(
+        Output("trend-detail-container", "style", allow_duplicate=True),
+        Input("nav-state", "data"),
+        prevent_initial_call=True,
+    )
+    def update_trend_visibility(nav):
+        """Hide trend detail panel when navigating to indicators level."""
+        level = nav.get("level", "sectors")
+        # Only show trends when at sectors level (sunburst shown)
+        # Hide them when drilling to sub_industries (but sunburst click will show them)
+        # Hide them when at indicators level
+        if level == "indicators":
+            return {"display": "none"}
+        # Keep current display state (controlled by on_sunburst_click)
+        return dash.no_update
 
     # ════════════════════════════════════════════════════════════════════════════
     # PHASE 1: COLLAPSIBLE CARD CALLBACKS (localStorage persistence via Phase 5)
@@ -217,8 +231,18 @@ def register_callbacks(app):
                 try:
                     trend_content = build_sector_trend_detail(label, sector.get("sub_industries", []))
                     trend_style = {"display": "block", "marginTop": "16px"}
-                except:
-                    pass  # Fallback to empty if trend building fails
+                except Exception as e:
+                    import traceback
+                    print(f"Error building trend detail: {e}")
+                    traceback.print_exc()
+                    # Return empty div on error
+                    trend_content = html.Div(f"Error: {str(e)}")
+                    trend_style = {"display": "block", "marginTop": "16px"}
+            else:
+                print(f"DEBUG: Sector {sector_id} not found in store")
+                print(f"DEBUG: Available sectors: {[s['id'] for s in sectors_data]}")
+                trend_content = html.Div("Sector not found in store")
+                trend_style = {"display": "block", "marginTop": "16px"}
 
             nav_update = {**nav, "level": "sub_industries", "sector_id": sector_id,
                          "sector_name": label, "sub_industry_id": None, "sub_industry_name": None}

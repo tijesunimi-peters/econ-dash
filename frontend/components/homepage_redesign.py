@@ -116,9 +116,17 @@ def build_redesigned_homepage(
         ], layout="1-col"),
 
         # ── Row 2.5: Sector Trend Detail Panel (placeholder - will be populated by callback) ──
-        dashboard_grid([
-            html.Div(id="trend-detail-container"),
-        ], layout="1-col"),
+        html.Div(
+            id="trend-detail-container",
+            style={
+                "display": "none",
+                "marginTop": "16px",
+                "padding": "16px",
+                "backgroundColor": "#1a1d29",
+                "borderRadius": "8px",
+                "border": "1px solid #2a2d3a",
+            }
+        ),
 
         # ── Row 3: Quick Stats ──
         _build_quick_stats_row(),
