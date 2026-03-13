@@ -7,6 +7,7 @@ import api_client
 from styles import COLORS
 from components import (
     build_sector_treemap,
+    build_sector_sunburst,
     build_breadcrumb,
     build_sparkline_table,
     build_indicator_chart,
@@ -175,23 +176,37 @@ def register_callbacks(app):
             "sub_industry_name": None,
         }
 
-    # ── Treemap click -> drill into sector ──
+    # ── Sunburst click -> drill into sector or indicators ──
     @app.callback(
         Output("nav-state", "data", allow_duplicate=True),
         Input("treemap", "clickData"),
         State("nav-state", "data"),
         prevent_initial_call=True,
     )
-    def on_treemap_click(click_data, nav):
+    def on_sunburst_click(click_data, nav):
         if not click_data or not click_data.get("points"):
             return dash.no_update
         point = click_data["points"][0]
-        sector_id = point.get("customdata")
-        if not sector_id:
-            return dash.no_update
+        customdata = point.get("customdata")
+        depth = point.get("depth", 0)
         label = point.get("label", "")
-        return {**nav, "level": "sub_industries", "sector_id": sector_id,
-                "sector_name": label, "sub_industry_id": None, "sub_industry_name": None}
+
+        if not customdata or not label:
+            return dash.no_update
+
+        # Depth 1 = sector clicked
+        if depth == 1:
+            sector_id = customdata
+            return {**nav, "level": "sub_industries", "sector_id": sector_id,
+                    "sector_name": label, "sub_industry_id": None, "sub_industry_name": None}
+
+        # Depth 2 = sub-industry clicked -> navigate to indicators
+        elif depth == 2:
+            sub_industry_id = customdata
+            return {**nav, "level": "indicators", "sub_industry_id": sub_industry_id,
+                    "sub_industry_name": label}
+
+        return dash.no_update
 
     # ── Sub-industry row click -> drill into indicators ──
     @app.callback(
@@ -428,7 +443,7 @@ def register_callbacks(app):
             return {"display": "block", "marginBottom": "0"}
         return {"display": "none"}
 
-    # ── Treemap (coupled with active tab) ──
+    # ── Sunburst Chart (coupled with active tab) ──
     @app.callback(
         Output("treemap", "figure"),
         Output("treemap-container", "style"),
@@ -436,15 +451,29 @@ def register_callbacks(app):
     )
     def update_treemap(nav):
         level = nav.get("level", "overview")
-        # Show treemap on homepage (sectors level) when country is selected
-        # Hide treemap when drilling down to sub_industries or indicators
+        # Show sunburst on homepage (sectors level) when country is selected
+        # Hide sunburst when drilling down to sub_industries or indicators
         if level == "sectors" and nav.get("country_id"):
             summary = api_client.get_country_summary(nav["country_id"])
             if isinstance(summary, dict) and "error" not in summary:
                 sectors = summary.get("sectors", [])
-                fig = build_sector_treemap(sectors, nav.get("country_name", ""))
+
+                # Enrich sectors with sub-industries data
+                sectors_with_subitems = []
+                for sector in sectors:
+                    sector_summary = api_client.get_sector_summary(sector["id"])
+                    sub_industries = []
+                    if not isinstance(sector_summary, dict) or "error" not in sector_summary:
+                        sub_industries = sector_summary.get("sub_industries", [])
+
+                    sectors_with_subitems.append({
+                        **sector,
+                        "sub_industries": sub_industries
+                    })
+
+                fig = build_sector_sunburst(sectors_with_subitems, nav.get("country_name", ""))
                 return fig, {"display": "block"}
-        # Hide treemap when at any other level
+        # Hide sunburst when at any other level
         return {}, {"display": "none"}
 
     # ── Tab content (Momentum / Compare / Correlations) ──

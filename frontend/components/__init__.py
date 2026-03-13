@@ -1868,3 +1868,8 @@ from .comparison_mode import (
     build_comparison_view,
     build_sync_scroll_callback_js,
 )
+
+# Sunburst Sector Visualization
+from .sunburst_sector_viz import (
+    build_sector_sunburst,
+)
