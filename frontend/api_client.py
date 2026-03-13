@@ -13,6 +13,16 @@ def _get(path, params=None):
         return {"error": str(e)}
 
 
+def _post(path, data=None):
+    """Make POST request to API endpoint."""
+    try:
+        resp = requests.post(f"{RAILS_API_URL}{path}", json=data, timeout=TIMEOUT)
+        resp.raise_for_status()
+        return resp.json()
+    except requests.RequestException as e:
+        return {"error": str(e)}
+
+
 def get_countries():
     return _get("/countries")
 
@@ -111,3 +121,21 @@ def get_country_structural_forecast(country_id, periods=2, method="linear"):
 def get_country_trade_flows(country_id):
     """Fetch trade flow metrics (exports, imports, FDI, supply chain) for a country."""
     return _get(f"/countries/{country_id}/trade_flows")
+
+
+def refresh_country_data(country_id):
+    """Trigger a refresh of data from external APIs for a specific country.
+
+    Returns:
+        dict with status, message, last_refresh_at, next_refresh_at
+    """
+    return _post(f"/countries/{country_id}/refresh_data")
+
+
+def refresh_all_countries_data():
+    """Trigger a refresh of data from external APIs for all countries.
+
+    Returns:
+        dict with status, message, countries_refreshed, total_countries
+    """
+    return _post("/countries/refresh_all_data")

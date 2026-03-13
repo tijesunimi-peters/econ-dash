@@ -21,9 +21,11 @@ Rails.application.routes.draw do
           get :structural_forecast
           get :trade_flows
           get 'compare/:other_id', action: :compare
+          post :refresh_data
         end
         collection do
           get 'by_cycle_phase/:phase', action: :by_cycle_phase
+          post :refresh_all_data
         end
       end
       resources :sectors, only: [:show] do

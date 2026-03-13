@@ -2,7 +2,7 @@ import dash
 from dash import html, dcc, callback, Input, Output, State, ALL
 import dash_bootstrap_components as dbc
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import api_client
 from styles import COLORS
 from components import (
@@ -837,6 +837,170 @@ def register_callbacks(app):
             ), breadcrumb
 
         return html.P("Unknown view."), breadcrumb
+
+    # ── Auto-clear scheduled flag after refresh completes (via interval) ──
+    @app.callback(
+        Output("refresh-timestamp-store", "data", allow_duplicate=True),
+        Input("refresh-state-interval", "n_intervals"),
+        State("refresh-timestamp-store", "data"),
+        prevent_initial_call=True,
+    )
+    def auto_clear_scheduled_flag(n_intervals, refresh_store):
+        """Clear scheduled flag after refresh is complete (30 seconds)."""
+        if not refresh_store or not refresh_store.get("is_scheduled"):
+            return dash.no_update
+
+        # If scheduled flag is set and last_refresh was just updated,
+        # clear scheduled flag after 30 seconds to allow new refreshes
+        try:
+            if refresh_store.get("last_refresh"):
+                # Parse last_refresh time
+                last_dt = datetime.fromisoformat(
+                    refresh_store["last_refresh"].replace('Z', '+00:00')
+                )
+                now = datetime.now(last_dt.tzinfo) if last_dt.tzinfo else datetime.now()
+                time_since_refresh = (now - last_dt).total_seconds()
+
+                # If more than 30 seconds have passed since refresh, clear scheduled flag
+                if time_since_refresh > 30:
+                    return {
+                        **refresh_store,
+                        "is_scheduled": False
+                    }
+        except:
+            pass
+
+        return dash.no_update
+
+    # ── Update Refresh Button UI ──
+    @app.callback(
+        Output("refresh-button-container", "children"),
+        Input("refresh-timestamp-store", "data"),
+    )
+    def update_refresh_button_ui(refresh_store):
+        """Update refresh button UI based on stored state."""
+        from components.refresh_button import build_refresh_button
+
+        if not refresh_store:
+            refresh_store = {
+                "last_refresh": None,
+                "next_refresh": None,
+                "is_scheduled": False
+            }
+
+        is_scheduled = refresh_store.get("is_scheduled", False)
+        is_loading = is_scheduled  # If scheduled, show as loading
+
+        return dbc.Row([
+            dbc.Col([
+                build_refresh_button(
+                    last_refresh_time=refresh_store.get("last_refresh"),
+                    next_refresh_time=refresh_store.get("next_refresh"),
+                    is_loading=is_loading,
+                    is_scheduled=is_scheduled
+                ),
+            ], lg=4, md=6, width=12),
+        ], style={"marginBottom": "16px"})
+
+    # ── Data Refresh Button Callback ──
+    @app.callback(
+        Output("refresh-timestamp-store", "data"),
+        Output("refresh-notification", "children"),
+        Output("refresh-button", "disabled"),
+        Input("refresh-button", "n_clicks"),
+        State("nav-state", "data"),
+        State("refresh-timestamp-store", "data"),
+        prevent_initial_call=True,
+    )
+    def on_refresh_data(n_clicks, nav, refresh_store):
+        """Handle data refresh button click."""
+        if not n_clicks or n_clicks == 0:
+            return dash.no_update, dash.no_update, dash.no_update
+
+        country_id = nav.get("country_id")
+        if not country_id:
+            notification = dbc.Toast(
+                "Please select a country first",
+                header="Info",
+                is_open=True,
+                dismissable=True,
+                icon="info",
+                style={
+                    "position": "fixed",
+                    "top": "20px",
+                    "right": "20px",
+                    "zIndex": "9999",
+                }
+            )
+            return dash.no_update, notification, dash.no_update
+
+        # Call refresh API
+        result = api_client.refresh_country_data(country_id)
+
+        if isinstance(result, dict) and "error" in result:
+            notification = dbc.Toast(
+                f"Error: {result.get('error', 'Unknown error')}",
+                header="Refresh Failed",
+                is_open=True,
+                dismissable=True,
+                icon="danger",
+                style={
+                    "position": "fixed",
+                    "top": "20px",
+                    "right": "20px",
+                    "zIndex": "9999",
+                    "backgroundColor": "#3a1a1a",
+                    "borderColor": "#ff5757",
+                }
+            )
+            return dash.no_update, notification, dash.no_update
+
+        # Success notification
+        message = result.get("message", "Data refresh initiated")
+        if result.get("status") == "rate_limited":
+            message = result.get("message", "Refresh rate limited - try again later")
+            notification = dbc.Toast(
+                message,
+                header="Rate Limited",
+                is_open=True,
+                dismissable=True,
+                icon="warning",
+                style={
+                    "position": "fixed",
+                    "top": "20px",
+                    "right": "20px",
+                    "zIndex": "9999",
+                    "backgroundColor": "#3a2a1a",
+                    "borderColor": "#ffb347",
+                }
+            )
+            # Button stays disabled due to rate limit
+            return refresh_store, notification, True
+        else:
+            notification = dbc.Toast(
+                message,
+                header="Refresh Initiated",
+                is_open=True,
+                dismissable=True,
+                icon="success",
+                style={
+                    "position": "fixed",
+                    "top": "20px",
+                    "right": "20px",
+                    "zIndex": "9999",
+                    "backgroundColor": "#1a3a1a",
+                    "borderColor": "#00c896",
+                }
+            )
+
+        # Store refresh timestamp and disable button (refresh is scheduled/in progress)
+        refresh_data = {
+            "last_refresh": result.get("refreshed_at"),
+            "next_refresh": result.get("next_refresh_at"),
+            "is_scheduled": True  # Mark refresh as scheduled/in progress
+        }
+
+        return refresh_data, notification, True  # Button disabled while refresh is in progress
 
 
 def _compute_start_date(preset):

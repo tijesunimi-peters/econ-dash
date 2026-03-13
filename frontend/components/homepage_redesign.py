@@ -21,6 +21,7 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 from .grid_layout import dashboard_grid, card_grid
 from .collapsible_card import build_collapsible_panel
+from .refresh_button import build_refresh_button
 
 try:
     from utils.storage import get_preset_config, list_presets
@@ -104,6 +105,15 @@ def build_redesigned_homepage(
 
         # ── Storage store for localStorage persistence (Phase 5) ──
         storage_store,
+
+        # ── Data Refresh Control ──
+        html.Div(id="refresh-button-container", children=[
+            dbc.Row([
+                dbc.Col([
+                    build_refresh_button(),
+                ], lg=4, md=6, width=12),
+            ], style={"marginBottom": "16px"}),
+        ]),
 
         # ── Row 1: Intelligence Panel (Full Width) ──
         dashboard_grid([

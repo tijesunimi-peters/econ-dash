@@ -298,6 +298,111 @@ module Api
         }
       end
 
+      def refresh_data
+        country = Country.find(params[:id])
+
+        # Check if refresh was done today (once daily limit)
+        cache_key = "refresh_timestamp/country/#{country.id}"
+        last_refresh = Rails.cache.read(cache_key)
+        now = Time.current
+
+        if last_refresh && (now - last_refresh) < 1.day
+          time_until_next = ((last_refresh + 1.day) - now).round
+          return render json: {
+            status: 'rate_limited',
+            message: "Data refreshed recently. Next refresh available in #{time_until_next} seconds.",
+            last_refresh_at: last_refresh,
+            next_refresh_at: last_refresh + 1.day
+          }, status: :too_many_requests
+        end
+
+        begin
+          # Clear relevant caches to force fresh data fetch
+          Rails.cache.delete("country_summary/#{country.id}")
+          Rails.cache.delete("country_percentiles/#{country.id}")
+          Rails.cache.delete("country_anomalies/#{country.id}")
+          Rails.cache.delete("country_momentum/#{country.id}")
+          Rails.cache.delete("country_business_cycle/#{country.id}")
+          Rails.cache.delete("country_executive_summary/#{country.id}")
+          Rails.cache.delete("country_correlations/#{country.id}")
+          Rails.cache.delete("country_causal_factors/#{country.id}")
+          Rails.cache.delete("country_market_sentiment/#{country.id}")
+          Rails.cache.delete("country_structural_trends/#{country.id}")
+          Rails.cache.delete("country_debt_trends/#{country.id}")
+          Rails.cache.delete("country_trade_flows/#{country.id}")
+
+          # Trigger data refresh from external APIs (non-blocking)
+          RefreshDataJob.perform_later(country.id) if defined?(RefreshDataJob)
+
+          # Store refresh timestamp
+          Rails.cache.write(cache_key, now, expires_in: 1.day)
+
+          render json: {
+            status: 'success',
+            message: 'Data refresh initiated from external APIs',
+            country_id: country.id,
+            refreshed_at: now,
+            next_refresh_at: now + 1.day
+          }
+        rescue => e
+          render json: {
+            status: 'error',
+            message: "Failed to refresh data: #{e.message}",
+            error: e.class.name
+          }, status: :unprocessable_entity
+        end
+      end
+
+      def refresh_all_data
+        begin
+          # Refresh all countries
+          countries = Country.all
+          refresh_count = 0
+
+          countries.each do |country|
+            cache_key = "refresh_timestamp/country/#{country.id}"
+            last_refresh = Rails.cache.read(cache_key)
+            now = Time.current
+
+            # Skip if refreshed within last 24 hours
+            next if last_refresh && (now - last_refresh) < 1.day
+
+            # Clear caches
+            Rails.cache.delete("country_summary/#{country.id}")
+            Rails.cache.delete("country_percentiles/#{country.id}")
+            Rails.cache.delete("country_anomalies/#{country.id}")
+            Rails.cache.delete("country_momentum/#{country.id}")
+            Rails.cache.delete("country_business_cycle/#{country.id}")
+            Rails.cache.delete("country_executive_summary/#{country.id}")
+            Rails.cache.delete("country_correlations/#{country.id}")
+            Rails.cache.delete("country_causal_factors/#{country.id}")
+            Rails.cache.delete("country_market_sentiment/#{country.id}")
+            Rails.cache.delete("country_structural_trends/#{country.id}")
+            Rails.cache.delete("country_debt_trends/#{country.id}")
+            Rails.cache.delete("country_trade_flows/#{country.id}")
+
+            # Trigger refresh
+            RefreshDataJob.perform_later(country.id) if defined?(RefreshDataJob)
+            Rails.cache.write(cache_key, now, expires_in: 1.day)
+            refresh_count += 1
+          end
+
+          render json: {
+            status: 'success',
+            message: "Refresh initiated for #{refresh_count} countries",
+            countries_refreshed: refresh_count,
+            total_countries: countries.count,
+            refreshed_at: Time.current
+          }
+        rescue => e
+          render json: {
+            status: 'error',
+            message: "Failed to refresh all data: #{e.message}",
+            error: e.class.name
+          }, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def country_json(country)
