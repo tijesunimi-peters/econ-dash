@@ -31,13 +31,24 @@ def build_sector_trend_sparkline(sparkline_data, yoy_pct, trend_direction):
     # Calculate trend color based on YoY percentage
     color = trend_color(yoy_pct)
 
+    # Convert hex to rgba for transparency
+    # Extract hex color and convert to rgb
+    if color.startswith('#'):
+        hex_color = color.lstrip('#')
+        r = int(hex_color[0:2], 16)
+        g = int(hex_color[2:4], 16)
+        b = int(hex_color[4:6], 16)
+        fillcolor = f'rgba({r},{g},{b},0.2)'
+    else:
+        fillcolor = color
+
     fig = go.Figure(data=[
         go.Scatter(
             y=sparkline_data,
             mode='lines',
             line=dict(color=color, width=2),
             fill='tozeroy',
-            fillcolor=color + '20',  # Add transparency
+            fillcolor=fillcolor,  # Transparent fill
             hovertemplate='Value: %{y:.2f}<extra></extra>',
         )
     ])
@@ -62,7 +73,7 @@ def build_sector_trend_detail(sector_name, sub_industries):
 
     Args:
         sector_name: Name of the selected sector
-        sub_industries: List of sub-industry dicts with sparkline data
+        sub_industries: List of sub-industry dicts with indicators array
 
     Returns:
         Dash component with trend lines and details
@@ -78,7 +89,13 @@ def build_sector_trend_detail(sector_name, sub_industries):
         sub_name = sub.get("name", "Unknown")
         sub_yoy = sub.get("yoy_change_pct", 0)
         trend_dir = sub.get("trend_direction", "flat")
-        sparkline = sub.get("sparkline", [])
+
+        # Get sparkline from first indicator (or aggregate if multiple)
+        indicators = sub.get("indicators", [])
+        sparkline = []
+        if indicators:
+            # Use first indicator's sparkline, or average all if needed
+            sparkline = indicators[0].get("sparkline", [])
 
         # Create mini sparkline
         fig = build_sector_trend_sparkline(sparkline, sub_yoy, trend_dir)
