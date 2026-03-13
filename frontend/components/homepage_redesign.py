@@ -106,6 +106,12 @@ def build_redesigned_homepage(
         # ── Storage store for localStorage persistence (Phase 5) ──
         storage_store,
 
+        # ── Persistent store for refresh timestamps (survives browser refresh) ──
+        dcc.Store(
+            id="refresh-timestamp-store",
+            storage_type="local"  # Persist to browser localStorage
+        ),
+
         # ── Data Refresh Control ──
         html.Div(id="refresh-button-container", children=[
             dbc.Row([

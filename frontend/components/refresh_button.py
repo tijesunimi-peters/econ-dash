@@ -156,17 +156,6 @@ def build_refresh_button(last_refresh_time=None, next_refresh_time=None, is_load
             ], width=12)
         ]),
 
-        # Persistent store for refresh timestamp (survives browser refresh)
-        dcc.Store(
-            id="refresh-timestamp-store",
-            data={
-                "last_refresh": last_refresh_time,
-                "next_refresh": next_refresh_time,
-                "is_scheduled": False
-            },
-            storage_type="local"  # Persist to browser localStorage
-        ),
-
         # Toast/notification area
         html.Div(id="refresh-notification", style={
             "position": "fixed",
