@@ -219,28 +219,32 @@ def register_callbacks(app):
 
         # Depth 1 = sector clicked -> show trend detail
         if depth == 1:
+            print(f"\n🔍 DEBUG: Sector clicked - ID={customdata}, Label={label}")
             sector_id = customdata
             # Find sector in store and build trend detail
             sectors_data = sectors_store.get("sectors", [])
+            print(f"🔍 DEBUG: Sectors in store: {len(sectors_data)}")
             sector = next((s for s in sectors_data if str(s["id"]) == sector_id), None)
 
             trend_content = html.Div()
             trend_style = {"display": "none"}
 
             if sector:
+                print(f"✅ Sector found: {sector['name']}, sub-industries: {len(sector.get('sub_industries', []))}")
                 try:
                     trend_content = build_sector_trend_detail(label, sector.get("sub_industries", []))
                     trend_style = {"display": "block", "marginTop": "16px"}
+                    print(f"✅ Trend detail built successfully")
                 except Exception as e:
                     import traceback
-                    print(f"Error building trend detail: {e}")
+                    print(f"❌ Error building trend detail: {e}")
                     traceback.print_exc()
                     # Return empty div on error
                     trend_content = html.Div(f"Error: {str(e)}")
                     trend_style = {"display": "block", "marginTop": "16px"}
             else:
-                print(f"DEBUG: Sector {sector_id} not found in store")
-                print(f"DEBUG: Available sectors: {[s['id'] for s in sectors_data]}")
+                print(f"❌ Sector {sector_id} not found in store")
+                print(f"❌ Available sectors: {[s['id'] for s in sectors_data]}")
                 trend_content = html.Div("Sector not found in store")
                 trend_style = {"display": "block", "marginTop": "16px"}
 
